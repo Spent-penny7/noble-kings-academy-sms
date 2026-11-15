@@ -618,8 +618,8 @@ function AdminDashboard({ onLogout }) {
               </span>
             </div>
           </div>
-          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', position: 'relative' }}>
-            <span style={{ fontSize: '0.88rem', color: '#000000', fontWeight: 800 }}>Mon, 09 Nov 2026</span>
+          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
+            <span className="header-date-tag" style={{ fontSize: '0.88rem', color: '#000000', fontWeight: 800 }}>Mon, 09 Nov 2026</span>
 
             {/* Notification Bell with Attention Counter */}
             <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setShowNotificationsDropdown(!showNotificationsDropdown)}>
@@ -642,18 +642,7 @@ function AdminDashboard({ onLogout }) {
 
               {/* Attention Needed Dropdown Panel */}
               {showNotificationsDropdown && (
-                <div style={{
-                  position: 'absolute',
-                  right: '0',
-                  top: '36px',
-                  width: '320px',
-                  background: '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '10px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                  zIndex: 100,
-                  padding: '16px'
-                }}>
+                <div className="notification-dropdown-panel">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
                     <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>⚡ Action Needed Quickly</strong>
                     <span className="badge badge-primary">{totalAttentionCount} Items</span>

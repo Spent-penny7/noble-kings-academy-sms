@@ -411,6 +411,13 @@ function TeacherDashboard({ onLogout }) {
             <span className="user-greeting" style={{ border: '2px solid #cbd5e1', background: '#f8fafc', color: '#000000' }}>
               👤 {teacherInfo?.full_name} | {teacherInfo?.specialization}
             </span>
+            <button
+              onClick={onLogout}
+              className="btn-logout-header"
+              title="Sign Out of Portal"
+            >
+              🚪 Sign Out
+            </button>
           </div>
         </header>
 
