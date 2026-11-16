@@ -24,6 +24,7 @@ function AdminDashboard({ onLogout }) {
   const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
 
   // Admin Management State
+  const [currentAdminProfile, setCurrentAdminProfile] = useState(null);
   const [adminsList, setAdminsList] = useState([]);
   const [newAdminForm, setNewAdminForm] = useState({
     full_name: '',
@@ -85,7 +86,8 @@ function AdminDashboard({ onLogout }) {
           resultsRes,
           annRes,
           currRes,
-          adminsRes
+          adminsRes,
+          sessionRes
         ] = await Promise.all([
           db.getSchoolSettings(),
           db.getAcademicSessions(),
@@ -96,10 +98,12 @@ function AdminDashboard({ onLogout }) {
           db.getAllResults(),
           db.getAnnouncements('all'),
           db.getAllCurriculum(),
-          db.getAdmins()
+          db.getAdmins(),
+          db.getSession()
         ]);
 
         if (!isMounted) return;
+        if (sessionRes?.session?.profile) setCurrentAdminProfile(sessionRes.session.profile);
         if (settingsRes.data) setSchoolSettings(settingsRes.data);
         if (sessionsRes.data) setSessions(sessionsRes.data);
         if (classesRes.data) setClasses(classesRes.data);
@@ -355,6 +359,29 @@ function AdminDashboard({ onLogout }) {
     showNotice(`✓ Password updated successfully for ${resetUserPasswordModal.full_name || resetUserPasswordModal.profiles?.full_name}!`);
     setResetUserPasswordModal(null);
     setNewResetPasswordInput('');
+  };
+
+  const handleToggleAdminStatus = async (adminId) => {
+    const { error } = await db.toggleAdminStatus(adminId);
+    if (error) {
+      showNotice(error.message, 'error');
+    } else {
+      const refreshed = await db.getAdmins();
+      if (refreshed.data) setAdminsList(refreshed.data);
+      showNotice('Admin account status toggled.');
+    }
+  };
+
+  const handleDeleteAdminAccount = async (adminId, name) => {
+    if (!window.confirm(`Are you sure you want to revoke and delete administrator account for ${name}?`)) return;
+    const { error } = await db.deleteAdminAccount(adminId);
+    if (error) {
+      showNotice(error.message, 'error');
+    } else {
+      const refreshed = await db.getAdmins();
+      if (refreshed.data) setAdminsList(refreshed.data);
+      showNotice(`✓ Admin account for ${name} has been revoked and removed.`);
+    }
   };
 
   const handleApproveStudentResults = async (studentId) => {
@@ -1548,13 +1575,13 @@ function AdminDashboard({ onLogout }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div className="card" style={{ background: '#f8fafc', padding: '20px', textAlign: 'center', border: '1px solid #cbd5e1' }}>
                   <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#16a34a', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 'bold', margin: '0 auto 12px' }}>
-                    SA
+                    {(currentAdminProfile?.full_name || 'Dr. Samuel Adebayo').split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                   </div>
-                  <h3 style={{ margin: '0 0 4px', fontSize: '1.2rem', color: '#0f172a' }}>Dr. Samuel Adebayo</h3>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>School Principal & Master Admin</p>
+                  <h3 style={{ margin: '0 0 4px', fontSize: '1.2rem', color: '#0f172a' }}>{currentAdminProfile?.full_name || 'Dr. Samuel Adebayo'}</h3>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>{currentAdminProfile?.admin_title || 'School Principal & Super Admin'}</p>
                   <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#334155' }}>
-                    <strong>Role:</strong> System Administrator<br />
-                    <strong>Email:</strong> admin@school.com
+                    <strong>Admin ID:</strong> <code>{currentAdminProfile?.student_id || '000000'}</code><br />
+                    <strong>Email:</strong> {currentAdminProfile?.email || 'admin@school.com'}
                   </div>
                 </div>
 
@@ -1781,21 +1808,59 @@ function AdminDashboard({ onLogout }) {
                           <th>Role Designation</th>
                           <th>Email & Contact</th>
                           <th>Status</th>
+                          <th style={{ textAlign: 'right' }}>Admin Governance Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {adminsList.map((admin) => (
-                          <tr key={admin.id}>
-                            <td><code>{admin.student_id || '000000'}</code></td>
-                            <td><strong>{admin.full_name}</strong></td>
-                            <td><span className="badge badge-primary">{admin.admin_title || 'System Administrator'}</span></td>
-                            <td>
-                              <div>{admin.email}</div>
-                              <small style={{ color: '#64748b' }}>{admin.phone || 'N/A'}</small>
-                            </td>
-                            <td><span className="badge badge-success">● Active Admin</span></td>
-                          </tr>
-                        ))}
+                        {adminsList.map((admin) => {
+                          const isMaster = admin.student_id === '000000' || admin.email === 'admin@school.com' || admin.is_super_admin;
+                          return (
+                            <tr key={admin.id}>
+                              <td><code>{admin.student_id || '000000'}</code></td>
+                              <td><strong>{admin.full_name}</strong></td>
+                              <td><span className="badge badge-primary">{admin.admin_title || 'System Administrator'}</span></td>
+                              <td>
+                                <div>{admin.email}</div>
+                                <small style={{ color: '#64748b' }}>{admin.phone || 'N/A'}</small>
+                              </td>
+                              <td>
+                                {admin.status === 'disabled' ? (
+                                  <span className="badge badge-danger" style={{ background: '#fee2e2', color: '#dc2626' }}>● Disabled</span>
+                                ) : (
+                                  <span className="badge badge-success">● Active Admin</span>
+                                )}
+                              </td>
+                              <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                                {isMaster ? (
+                                  <span className="badge badge-primary" style={{ background: '#0f172a', color: '#ffffff', padding: '4px 8px' }}>👑 Master Super Admin (Protected)</span>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => handleToggleAdminStatus(admin.id)}
+                                      style={{
+                                        background: admin.status === 'disabled' ? '#2563eb' : '#d97706',
+                                        color: '#ffffff',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        padding: '4px 10px',
+                                        fontSize: '0.78rem',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      {admin.status === 'disabled' ? 'Enable' : 'Disable'}
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteAdminAccount(admin.id, admin.full_name)}
+                                      style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '4px 10px', fontSize: '0.78rem', cursor: 'pointer' }}
+                                    >
+                                      Delete / Revoke
+                                    </button>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

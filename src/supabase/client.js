@@ -1473,6 +1473,50 @@ export const db = {
     return { data: newAdmin, error: null };
   },
 
+  toggleAdminStatus: async (adminId) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: profile } = await supabase.from('profiles').select('status').eq('id', adminId).single();
+        const newStatus = profile?.status === 'disabled' ? 'approved' : 'disabled';
+        const { error } = await supabase.from('profiles').update({ status: newStatus }).eq('id', adminId);
+        if (!error) return { error: null };
+      } catch (err) {
+        console.warn('Supabase toggleAdminStatus error:', err);
+      }
+    }
+    const currentMock = loadMockData();
+    const adminIndex = currentMock.profiles.findIndex(p => p.id === adminId || p.student_id === adminId);
+    if (adminIndex !== -1) {
+      if (currentMock.profiles[adminIndex].student_id === '000000' || currentMock.profiles[adminIndex].is_super_admin) {
+        return { error: { message: 'Super Admin account is protected and cannot be disabled.' } };
+      }
+      const current = currentMock.profiles[adminIndex].status;
+      currentMock.profiles[adminIndex].status = current === 'disabled' ? 'approved' : 'disabled';
+      saveMockData(currentMock);
+      return { error: null };
+    }
+    return { error: { message: 'Admin account not found' } };
+  },
+
+  deleteAdminAccount: async (adminId) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('profiles').delete().eq('id', adminId);
+        if (!error) return { error: null };
+      } catch (err) {
+        console.warn('Supabase deleteAdminAccount error:', err);
+      }
+    }
+    const currentMock = loadMockData();
+    const admin = currentMock.profiles.find(p => p.id === adminId || p.student_id === adminId);
+    if (admin && (admin.student_id === '000000' || admin.email === 'admin@school.com' || admin.is_super_admin)) {
+      return { error: { message: 'Super Admin account is protected and cannot be deleted.' } };
+    }
+    currentMock.profiles = currentMock.profiles.filter(p => p.id !== adminId && p.student_id !== adminId);
+    saveMockData(currentMock);
+    return { error: null };
+  },
+
   requestPasswordReset: async (portalId, contactInfo) => {
     const currentMock = loadMockData();
     if (!currentMock.reset_requests) currentMock.reset_requests = [];
