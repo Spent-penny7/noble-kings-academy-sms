@@ -122,6 +122,9 @@ function StudentDashboard({ onLogout }) {
         <div className="sidebar-id-card">
           <small>STUDENT ID / CODE</small>
           <strong>{studentInfo?.student_id}</strong>
+          <button onClick={onLogout} className="btn-logout" style={{ marginTop: '10px', width: '100%', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '8px', padding: '8px 12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}>
+            🚪 Sign Out
+          </button>
         </div>
 
         <nav className="sidebar-nav">

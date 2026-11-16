@@ -515,6 +515,9 @@ function AdminDashboard({ onLogout }) {
             <span>Admin workspace</span>
             <span>🔒</span>
           </div>
+          <button onClick={onLogout} className="btn-logout" style={{ marginTop: '10px', width: '100%', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '8px 12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}>
+            🚪 Sign Out
+          </button>
           <small style={{ display: 'block', color: '#64748b', fontSize: '0.72rem', marginTop: '8px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Workspace</small>
         </div>
 
