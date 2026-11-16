@@ -362,6 +362,10 @@ function AdminDashboard({ onLogout }) {
   };
 
   const handleToggleAdminStatus = async (adminId) => {
+    if (!isCurrentLoggedInSuperAdmin) {
+      showNotice('Access Denied: Only the Super Admin can enable or disable administrator accounts.', 'error');
+      return;
+    }
     const { error } = await db.toggleAdminStatus(adminId);
     if (error) {
       showNotice(error.message, 'error');
@@ -373,6 +377,10 @@ function AdminDashboard({ onLogout }) {
   };
 
   const handleDeleteAdminAccount = async (adminId, name) => {
+    if (!isCurrentLoggedInSuperAdmin) {
+      showNotice('Access Denied: Only the Super Admin can delete or revoke administrator accounts.', 'error');
+      return;
+    }
     if (!window.confirm(`Are you sure you want to revoke and delete administrator account for ${name}?`)) return;
     const { error } = await db.deleteAdminAccount(adminId);
     if (error) {
@@ -493,6 +501,9 @@ function AdminDashboard({ onLogout }) {
     : [];
 
   const currentSession = sessions.find((s) => s.is_current) || sessions[0];
+  const currentAdminId = currentAdminProfile?.student_id || '000000';
+  const currentAdminEmail = currentAdminProfile?.email || 'admin@school.com';
+  const isCurrentLoggedInSuperAdmin = currentAdminId === '000000' || currentAdminEmail === 'admin@school.com' || currentAdminProfile?.is_super_admin === true;
 
   // Attention Counts for Header Notifications
   const pendingStudentsCount = students.filter(s => s.status !== 'approved').length;
@@ -1833,7 +1844,7 @@ function AdminDashboard({ onLogout }) {
                               <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                                 {isMaster ? (
                                   <span className="badge badge-primary" style={{ background: '#0f172a', color: '#ffffff', padding: '4px 8px' }}>👑 Master Super Admin (Protected)</span>
-                                ) : (
+                                ) : isCurrentLoggedInSuperAdmin ? (
                                   <>
                                     <button
                                       onClick={() => handleToggleAdminStatus(admin.id)}
@@ -1856,6 +1867,8 @@ function AdminDashboard({ onLogout }) {
                                       Delete / Revoke
                                     </button>
                                   </>
+                                ) : (
+                                  <span className="badge badge-secondary" style={{ padding: '4px 8px', fontSize: '0.72rem' }}>Restricted to Super Admin</span>
                                 )}
                               </td>
                             </tr>
