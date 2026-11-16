@@ -160,11 +160,6 @@ function StudentDashboard({ onLogout }) {
           </button>
         </nav>
 
-        <div className="sidebar-footer">
-          <button onClick={onLogout} className="btn-logout">
-            🚪 Sign Out
-          </button>
-        </div>
       </aside>
 
       {/* Main Container */}

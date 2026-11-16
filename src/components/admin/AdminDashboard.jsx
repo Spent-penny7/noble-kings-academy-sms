@@ -596,9 +596,6 @@ function AdminDashboard({ onLogout }) {
             Term: <strong>{currentSession?.term || currentSession?.active_term || 'Third Term'}</strong><br />
             <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Noble Kings Academy</span>
           </div>
-          <button onClick={onLogout} className="btn-logout" style={{ marginTop: '12px', width: '100%', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '6px', padding: '8px', fontWeight: 700, cursor: 'pointer' }}>
-            🚪 Sign Out
-          </button>
         </div>
       </aside>
 
