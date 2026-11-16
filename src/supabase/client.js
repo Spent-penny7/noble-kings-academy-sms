@@ -62,6 +62,10 @@ const INITIAL_MOCK_DATA = {
     { id: 't-3', session_id: 'session-1', term_name: 'Third Term', term_number: 3, is_current: true }
   ],
   classes: [
+    { id: 'c-0a', class_name: 'Creche', class_code: 'CRH', class_level: 'Early Years', capacity: 25, current_enrollment: 0 },
+    { id: 'c-0b', class_name: 'Nursery 1', class_code: 'NUR1', class_level: 'Early Years', capacity: 30, current_enrollment: 0 },
+    { id: 'c-0c', class_name: 'Nursery 2', class_code: 'NUR2', class_level: 'Early Years', capacity: 30, current_enrollment: 0 },
+    { id: 'c-0d', class_name: 'Kindergarten', class_code: 'KG', class_level: 'Early Years', capacity: 30, current_enrollment: 0 },
     { id: 'c-1', class_name: 'Primary 1', class_code: 'PRM1', class_level: 'Primary', capacity: 35, current_enrollment: 0 },
     { id: 'c-2', class_name: 'Primary 2', class_code: 'PRM2', class_level: 'Primary', capacity: 35, current_enrollment: 0 },
     { id: 'c-3', class_name: 'Primary 3', class_code: 'PRM3', class_level: 'Primary', capacity: 35, current_enrollment: 0 },

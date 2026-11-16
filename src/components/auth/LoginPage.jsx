@@ -291,10 +291,19 @@ function LoginPage() {
                     onChange={(e) => setStudentClass(e.target.value)}
                     className="cg-select"
                   >
+                    <option value="Creche">Creche</option>
+                    <option value="Nursery 1">Nursery 1</option>
+                    <option value="Nursery 2">Nursery 2</option>
+                    <option value="Kindergarten">Kindergarten</option>
                     <option value="Primary 1">Primary 1</option>
                     <option value="Primary 2">Primary 2</option>
+                    <option value="Primary 3">Primary 3</option>
+                    <option value="Primary 4">Primary 4</option>
+                    <option value="Primary 5">Primary 5</option>
                     <option value="JSS 1">JSS 1</option>
                     <option value="JSS 2">JSS 2</option>
+                    <option value="JSS 3">JSS 3</option>
+                    <option value="SSS 1">SSS 1 (SS 1)</option>
                   </select>
                 </div>
               )}
