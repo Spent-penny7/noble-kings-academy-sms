@@ -762,6 +762,9 @@ body {
 }
 
 @media (max-width: 600px) {
+  .admin-main {
+    padding: 10px 8px !important;
+  }
   .stats-grid-responsive {
     grid-template-columns: 1fr !important;
   }
@@ -769,43 +772,54 @@ body {
     grid-template-columns: 1fr !important;
   }
   .digital-id-card {
-    padding: 16px 14px !important;
+    padding: 14px 12px !important;
   }
   .id-card-body {
     flex-direction: column !important;
     align-items: flex-start !important;
-    gap: 12px !important;
+    gap: 10px !important;
   }
   .id-number-large {
-    font-size: 1.3rem !important;
+    font-size: 1.25rem !important;
   }
   .card, .tab-content.card {
-    padding: 14px 10px !important;
+    padding: 12px 10px !important;
+    border-radius: 8px !important;
   }
   .card-header-flex {
     flex-direction: column !important;
     align-items: flex-start !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
   .card-header-flex > div,
   .card-header-flex > input,
   .card-header-flex > button {
     width: 100% !important;
   }
+  .cg-input-group label, .form-group label {
+    font-size: 0.78rem !important;
+  }
+  .cg-input-group input,
+  .cg-select,
+  textarea {
+    font-size: 16px !important;
+    padding: 8px 10px !important;
+  }
   .modal-card {
     width: 95% !important;
     max-width: 95vw !important;
-    padding: 18px 14px !important;
-    margin: 10px !important;
+    padding: 16px 12px !important;
+    margin: 8px !important;
     max-height: 90vh !important;
     overflow-y: auto !important;
   }
   .modal-actions {
     flex-direction: column-reverse !important;
-    gap: 10px !important;
+    gap: 8px !important;
   }
   .modal-actions button {
     width: 100% !important;
+    padding: 10px !important;
   }
 }
 
