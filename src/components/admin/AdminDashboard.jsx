@@ -177,7 +177,7 @@ function AdminDashboard({ onLogout }) {
     }
   };
 
-  const handleSaveSchoolSettings = async (e) => {
+  const _handleSaveSchoolSettings = async (e) => {
     e.preventDefault();
     if (!schoolSettings) return;
     const { data, error } = await db.updateSchoolSettings(schoolSettings);
@@ -553,10 +553,17 @@ function AdminDashboard({ onLogout }) {
             <span>Admin workspace</span>
             <span>🔒</span>
           </div>
+
+          {/* Active Session & Term Badge - Higher Vertically */}
+          <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '8px 10px', fontSize: '0.78rem', color: '#166534', marginTop: '8px' }}>
+            <strong>📅 {currentSession?.session_name || '2024 - 2025'} Session</strong><br />
+            Term: <strong>{currentSession?.term || currentSession?.active_term || 'Third Term'}</strong><br />
+            <span style={{ fontSize: '0.7rem', color: '#15803d' }}>Noble Kings Academy</span>
+          </div>
+
           <button onClick={onLogout} className="btn-logout" style={{ marginTop: '10px', width: '100%', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '8px 12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}>
             🚪 Sign Out
           </button>
-          <small style={{ display: 'block', color: '#64748b', fontSize: '0.72rem', marginTop: '8px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Workspace</small>
         </div>
 
         <nav className="sidebar-nav" style={{ padding: '0 8px' }}>
@@ -628,13 +635,6 @@ function AdminDashboard({ onLogout }) {
           </button>
         </nav>
 
-        <div className="sidebar-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '12px 16px', marginTop: 'auto' }}>
-          <div style={{ background: '#e2e8f0', borderRadius: '6px', padding: '8px 10px', fontSize: '0.75rem', color: '#475569' }}>
-            <strong>{currentSession?.session_name || '2024 - 2025'} Session</strong><br />
-            Term: <strong>{currentSession?.term || currentSession?.active_term || 'Third Term'}</strong><br />
-            <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Noble Kings Academy</span>
-          </div>
-        </div>
       </aside>
 
       {/* Main Content Area */}
@@ -1577,308 +1577,240 @@ function AdminDashboard({ onLogout }) {
         {activeTab === 'profile' && (
           <div className="tab-content card">
             <div className="card-header-flex">
-              <h2>👤 Administrator Profile & System Governance</h2>
-              <span className="badge badge-success">● Active Master Administrator</span>
+              <div>
+                <h2 style={{ color: '#000000', fontWeight: 800 }}>👤 Administrator Profile &amp; System Governance</h2>
+                <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '0.88rem' }}>
+                  Manage active administrator profile credentials, security passwords, and appoint school administrators.
+                </p>
+              </div>
+              <span className="badge badge-success">● Active Administrator Profile</span>
             </div>
 
-            <div className="admin-profile-grid">
-              {/* Left Column: Current Profile Card & Change Password Form */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div className="card" style={{ background: '#f8fafc', padding: '20px', textAlign: 'center', border: '1px solid #cbd5e1' }}>
-                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#16a34a', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 'bold', margin: '0 auto 12px' }}>
-                    {(currentAdminProfile?.full_name || 'Dr. Samuel Adebayo').split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                  </div>
-                  <h3 style={{ margin: '0 0 4px', fontSize: '1.2rem', color: '#0f172a' }}>{currentAdminProfile?.full_name || 'Dr. Samuel Adebayo'}</h3>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>{currentAdminProfile?.admin_title || 'School Principal & Super Admin'}</p>
-                  <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#334155' }}>
-                    <strong>Admin ID:</strong> <code>{currentAdminProfile?.student_id || '000000'}</code><br />
-                    <strong>Email:</strong> {currentAdminProfile?.email || 'admin@school.com'}
-                  </div>
+            {/* TOP CARD: Active Profile & Change Password Setup */}
+            <div className="card mb-20" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', marginTop: '20px', padding: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap', borderBottom: '1px solid #e2e8f0', paddingBottom: '20px', marginBottom: '20px' }}>
+                <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: '#16a34a', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', fontWeight: 'bold' }}>
+                  {(currentAdminProfile?.full_name || 'Dr. Samuel Adebayo').split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                 </div>
-
-                {/* Change Admin Password Card */}
-                <div className="card" style={{ padding: '20px', border: '1px solid #cbd5e1' }}>
-                  <h3 style={{ margin: '0 0 16px', fontSize: '1rem', color: '#0f172a' }}>🔒 Change Your Security Password</h3>
-                  <form onSubmit={handleChangeAdminPassword}>
-                    <div className="cg-input-group mb-20">
-                      <label>Current Password</label>
-                      <input
-                        type="password"
-                        placeholder="Enter current password"
-                        value={adminPasswordForm.currentPassword}
-                        onChange={(e) => setAdminPasswordForm({ ...adminPasswordForm, currentPassword: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="cg-form-row mb-20">
-                      <div className="cg-input-group">
-                        <label>New Password (Min 6 chars)</label>
-                        <input
-                          type="password"
-                          placeholder="New password"
-                          value={adminPasswordForm.newPassword}
-                          onChange={(e) => setAdminPasswordForm({ ...adminPasswordForm, newPassword: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="cg-input-group">
-                        <label>Confirm Password</label>
-                        <input
-                          type="password"
-                          placeholder="Repeat password"
-                          value={adminPasswordForm.confirmPassword}
-                          onChange={(e) => setAdminPasswordForm({ ...adminPasswordForm, confirmPassword: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <button type="submit" className="btn-primary" style={{ background: '#0f172a', width: '100%' }}>
-                      Update Admin Password
-                    </button>
-                  </form>
-                </div>
-
-                {/* School Identity & Profile Configuration Card */}
-                {schoolSettings && (
-                  <div className="card" style={{ padding: '20px', border: '1px solid #cbd5e1' }}>
-                    <h3 style={{ margin: '0 0 16px', fontSize: '1rem', color: '#0f172a' }}>🏫 School Profile &amp; Institutional Identity</h3>
-                    <form onSubmit={handleSaveSchoolSettings}>
-                      <div className="cg-input-group mb-20">
-                        <label>School Name</label>
-                        <input
-                          type="text"
-                          value={schoolSettings.school_name || ''}
-                          onChange={(e) => setSchoolSettings({ ...schoolSettings, school_name: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="cg-form-row mb-20">
-                        <div className="cg-input-group">
-                          <label>School Code</label>
-                          <input
-                            type="text"
-                            value={schoolSettings.school_code || ''}
-                            onChange={(e) => setSchoolSettings({ ...schoolSettings, school_code: e.target.value })}
-                            required
-                          />
-                        </div>
-                        <div className="cg-input-group">
-                          <label>Principal Name</label>
-                          <input
-                            type="text"
-                            value={schoolSettings.principal_name || ''}
-                            onChange={(e) => setSchoolSettings({ ...schoolSettings, principal_name: e.target.value })}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="cg-input-group mb-20">
-                        <label>Campus Address</label>
-                        <input
-                          type="text"
-                          value={schoolSettings.school_address || ''}
-                          onChange={(e) => setSchoolSettings({ ...schoolSettings, school_address: e.target.value })}
-                        />
-                      </div>
-                      <div className="cg-form-row mb-20">
-                        <div className="cg-input-group">
-                          <label>Official Phone</label>
-                          <input
-                            type="tel"
-                            value={schoolSettings.school_phone || ''}
-                            onChange={(e) => setSchoolSettings({ ...schoolSettings, school_phone: e.target.value })}
-                          />
-                        </div>
-                        <div className="cg-input-group">
-                          <label>Official Email</label>
-                          <input
-                            type="email"
-                            value={schoolSettings.school_email || ''}
-                            onChange={(e) => setSchoolSettings({ ...schoolSettings, school_email: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <button type="submit" className="btn-primary" style={{ width: '100%' }}>
-                        Save School Settings
-                      </button>
-                    </form>
-                  </div>
-                )}
-              </div>
-
-              {/* Right Column: Add New Admin Form & Administrators Roster Table */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                {/* ADD NEW ADMIN CARD */}
-                <div className="card" style={{ padding: '24px', border: '1px solid #16a34a', borderRadius: '10px', background: '#ffffff' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a', fontWeight: 800 }}>
-                      ➕ Appoint & Add New School Administrator
-                    </h3>
-                    <span className="badge badge-primary">Admin Access Control</span>
-                  </div>
-
-                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', fontSize: '0.85rem', color: '#166534' }}>
-                    <strong>💡 Administrator Authority & Layout Overview:</strong>
-                    <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
-                      <li>Registered administrators gain full access to approve pending student admissions and teacher accounts.</li>
-                      <li>Admins can publish class learning plans, release official student report cards, and manage active academic setup sessions.</li>
-                      <li>Newly created admins receive an automatically generated <strong>Admin Portal ID</strong> (e.g. <code>108492</code>) for direct Admin Login access.</li>
-                    </ul>
-                  </div>
-
-                  <form onSubmit={handleCreateAdmin}>
-                    <div className="cg-form-row mb-20">
-                      <div className="cg-input-group">
-                        <label>Administrator Full Name</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Mrs. Victoria Williams"
-                          value={newAdminForm.full_name}
-                          onChange={(e) => setNewAdminForm({ ...newAdminForm, full_name: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="cg-input-group">
-                        <label>Official Email Address</label>
-                        <input
-                          type="email"
-                          placeholder="vwilliams@school.com"
-                          value={newAdminForm.email}
-                          onChange={(e) => setNewAdminForm({ ...newAdminForm, email: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="cg-form-row mb-20">
-                      <div className="cg-input-group">
-                        <label>Phone Number</label>
-                        <input
-                          type="tel"
-                          placeholder="+1 555-0198"
-                          value={newAdminForm.phone}
-                          onChange={(e) => setNewAdminForm({ ...newAdminForm, phone: e.target.value })}
-                        />
-                      </div>
-                      <div className="cg-input-group">
-                        <label>Administrative Designation / Role</label>
-                        <select
-                          value={newAdminForm.admin_title}
-                          onChange={(e) => setNewAdminForm({ ...newAdminForm, admin_title: e.target.value })}
-                          className="cg-select"
-                        >
-                          <option value="School Principal & System Admin">School Principal & System Admin</option>
-                          <option value="Vice Principal (Academic Affairs)">Vice Principal (Academic Affairs)</option>
-                          <option value="School Registrar & Admissions Director">School Registrar & Admissions Director</option>
-                          <option value="Bursar & Financial Administrator">Bursar & Financial Administrator</option>
-                          <option value="IT System Administrator">IT System Administrator</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="cg-form-row mb-20">
-                      <div className="cg-input-group">
-                        <label>Security Access Password (Min 6 chars)</label>
-                        <input
-                          type="password"
-                          placeholder="Assign password"
-                          value={newAdminForm.password}
-                          onChange={(e) => setNewAdminForm({ ...newAdminForm, password: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="cg-input-group">
-                        <label>Confirm Password</label>
-                        <input
-                          type="password"
-                          placeholder="Repeat password"
-                          value={newAdminForm.confirm_password}
-                          onChange={(e) => setNewAdminForm({ ...newAdminForm, confirm_password: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <button type="submit" className="btn-primary" style={{ padding: '12px 24px', fontSize: '0.95rem' }}>
-                      + Appoint & Register School Administrator
-                    </button>
-                  </form>
-                </div>
-
-                {/* CURRENT ADMINISTRATORS ROSTER */}
-                <div className="card" style={{ padding: '24px', border: '1px solid #cbd5e1' }}>
-                  <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', color: '#0f172a', fontWeight: 800 }}>
-                    👑 Registered School Administrators Roster ({adminsList.length})
+                <div>
+                  <span className="badge badge-primary mb-1" style={{ display: 'inline-block', marginBottom: '4px' }}>{currentAdminProfile?.admin_title || 'School Principal & Super Admin'}</span>
+                  <h3 style={{ fontSize: '1.4rem', color: '#0f172a', fontWeight: 800, margin: '2px 0' }}>
+                    {currentAdminProfile?.full_name || 'Dr. Samuel Adebayo'}
                   </h3>
-                  <div className="table-responsive">
-                    <table className="data-table">
-                      <thead>
-                        <tr>
-                          <th>Admin ID</th>
-                          <th>Full Name</th>
-                          <th>Role Designation</th>
-                          <th>Email & Contact</th>
-                          <th>Status</th>
-                          <th style={{ textAlign: 'right' }}>Admin Governance Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {adminsList.map((admin) => {
-                          const isMaster = admin.student_id === '000000' || admin.email === 'admin@school.com' || admin.is_super_admin;
-                          return (
-                            <tr key={admin.id}>
-                              <td><code>{admin.student_id || '000000'}</code></td>
-                              <td><strong>{admin.full_name}</strong></td>
-                              <td><span className="badge badge-primary">{admin.admin_title || 'System Administrator'}</span></td>
-                              <td>
-                                <div>{admin.email}</div>
-                                <small style={{ color: '#64748b' }}>{admin.phone || 'N/A'}</small>
-                              </td>
-                              <td>
-                                {admin.status === 'disabled' ? (
-                                  <span className="badge badge-danger" style={{ background: '#fee2e2', color: '#dc2626' }}>● Disabled</span>
-                                ) : (
-                                  <span className="badge badge-success">● Active Admin</span>
-                                )}
-                              </td>
-                              <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                                {isMaster ? (
-                                  <span className="badge badge-primary" style={{ background: '#0f172a', color: '#ffffff', padding: '4px 8px' }}>👑 Master Super Admin (Protected)</span>
-                                ) : isCurrentLoggedInSuperAdmin ? (
-                                  <>
-                                    <button
-                                      onClick={() => handleToggleAdminStatus(admin.id)}
-                                      style={{
-                                        background: admin.status === 'disabled' ? '#2563eb' : '#d97706',
-                                        color: '#ffffff',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        padding: '4px 10px',
-                                        fontSize: '0.78rem',
-                                        cursor: 'pointer'
-                                      }}
-                                    >
-                                      {admin.status === 'disabled' ? 'Enable' : 'Disable'}
-                                    </button>
-                                    <button
-                                      onClick={() => handleDeleteAdminAccount(admin.id, admin.full_name)}
-                                      style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '4px 10px', fontSize: '0.78rem', cursor: 'pointer' }}
-                                    >
-                                      Delete / Revoke
-                                    </button>
-                                  </>
-                                ) : (
-                                  <span className="badge badge-secondary" style={{ padding: '4px 8px', fontSize: '0.72rem' }}>Restricted to Super Admin</span>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                  <p style={{ fontSize: '0.88rem', color: '#475569', margin: 0 }}>
+                    Admin ID: <code>{currentAdminProfile?.student_id || '000000'}</code> | Email: <strong>{currentAdminProfile?.email || 'admin@school.com'}</strong>
+                  </p>
                 </div>
               </div>
+
+              {/* Password Change Form inside Top Card */}
+              <h4 style={{ margin: '0 0 12px', fontSize: '1rem', color: '#0f172a', fontWeight: 800 }}>🔒 Change Your Security Password</h4>
+              <form onSubmit={handleChangeAdminPassword}>
+                <div className="cg-form-row mb-20">
+                  <div className="cg-input-group">
+                    <label>Current Password</label>
+                    <input
+                      type="password"
+                      placeholder="Enter current password"
+                      value={adminPasswordForm.currentPassword}
+                      onChange={(e) => setAdminPasswordForm({ ...adminPasswordForm, currentPassword: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="cg-input-group">
+                    <label>New Password (Min 6 chars)</label>
+                    <input
+                      type="password"
+                      placeholder="New password"
+                      value={adminPasswordForm.newPassword}
+                      onChange={(e) => setAdminPasswordForm({ ...adminPasswordForm, newPassword: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="cg-input-group">
+                    <label>Confirm Password</label>
+                    <input
+                      type="password"
+                      placeholder="Repeat password"
+                      value={adminPasswordForm.confirmPassword}
+                      onChange={(e) => setAdminPasswordForm({ ...adminPasswordForm, confirmPassword: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+                <button type="submit" className="btn-primary" style={{ background: '#0f172a', padding: '10px 20px' }}>
+                  Update Security Password
+                </button>
+              </form>
+            </div>
+
+            {/* MIDDLE CARD: Appoint & Add New Administrator */}
+            <div className="card mb-20" style={{ padding: '24px', border: '1px solid #16a34a', borderRadius: '10px', background: '#ffffff' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0f172a', fontWeight: 800 }}>
+                  ➕ Appoint &amp; Add New School Administrator
+                </h3>
+                <span className="badge badge-primary">Admin Access Control</span>
+              </div>
+
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', fontSize: '0.85rem', color: '#166534' }}>
+                <strong>💡 Administrator Authority &amp; Layout Overview:</strong>
+                <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
+                  <li>Registered administrators gain full access to approve pending student admissions and teacher accounts.</li>
+                  <li>Admins can publish class learning plans, release official student report cards, and manage active academic setup sessions.</li>
+                  <li>Newly created admins receive an automatically generated <strong>Admin Portal ID</strong> (e.g. <code>108492</code>) for direct Admin Login access.</li>
+                </ul>
+              </div>
+
+              <form onSubmit={handleCreateAdmin}>
+                <div className="cg-form-row mb-20">
+                  <div className="cg-input-group">
+                    <label>Administrator Full Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Mrs. Victoria Williams"
+                      value={newAdminForm.full_name}
+                      onChange={(e) => setNewAdminForm({ ...newAdminForm, full_name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="cg-input-group">
+                    <label>Official Email Address</label>
+                    <input
+                      type="email"
+                      placeholder="vwilliams@school.com"
+                      value={newAdminForm.email}
+                      onChange={(e) => setNewAdminForm({ ...newAdminForm, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="cg-form-row mb-20">
+                  <div className="cg-input-group">
+                    <label>Phone Number</label>
+                    <input
+                      type="tel"
+                      placeholder="+1 555-0198"
+                      value={newAdminForm.phone}
+                      onChange={(e) => setNewAdminForm({ ...newAdminForm, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="cg-input-group">
+                    <label>Administrative Designation / Role</label>
+                    <select
+                      value={newAdminForm.admin_title}
+                      onChange={(e) => setNewAdminForm({ ...newAdminForm, admin_title: e.target.value })}
+                      className="cg-select"
+                    >
+                      <option value="School Principal & System Admin">School Principal &amp; System Admin</option>
+                      <option value="Vice Principal (Academic Affairs)">Vice Principal (Academic Affairs)</option>
+                      <option value="School Registrar & Admissions Director">School Registrar &amp; Admissions Director</option>
+                      <option value="Bursar & Financial Administrator">Bursar &amp; Financial Administrator</option>
+                      <option value="IT System Administrator">IT System Administrator</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="cg-form-row mb-20">
+                  <div className="cg-input-group">
+                    <label>Security Access Password (Min 6 chars)</label>
+                    <input
+                      type="password"
+                      placeholder="Assign password"
+                      value={newAdminForm.password}
+                      onChange={(e) => setNewAdminForm({ ...newAdminForm, password: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="cg-input-group">
+                    <label>Confirm Password</label>
+                    <input
+                      type="password"
+                      placeholder="Repeat password"
+                      value={newAdminForm.confirm_password}
+                      onChange={(e) => setNewAdminForm({ ...newAdminForm, confirm_password: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="btn-primary" style={{ padding: '12px 24px', fontSize: '0.95rem' }}>
+                  + Appoint &amp; Register School Administrator
+                </button>
+              </form>
+            </div>
+
+            {/* BOTTOM CARD: Registered School Administrators Roster Table */}
+            <h3 style={{ fontSize: '1rem', color: '#000000', fontWeight: 800, marginBottom: '12px', marginTop: '24px' }}>
+              👑 Registered School Administrators Roster ({adminsList.length})
+            </h3>
+            <div className="table-responsive">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Admin ID</th>
+                    <th>Full Name</th>
+                    <th>Role Designation</th>
+                    <th>Email &amp; Contact</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Admin Governance Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminsList.map((admin) => {
+                    const isMaster = admin.student_id === '000000' || admin.email === 'admin@school.com' || admin.is_super_admin;
+                    return (
+                      <tr key={admin.id}>
+                        <td><code>{admin.student_id || '000000'}</code></td>
+                        <td><strong>{admin.full_name}</strong></td>
+                        <td><span className="badge badge-primary">{admin.admin_title || 'System Administrator'}</span></td>
+                        <td>
+                          <div>{admin.email}</div>
+                          <small style={{ color: '#64748b' }}>{admin.phone || 'N/A'}</small>
+                        </td>
+                        <td>
+                          {admin.status === 'disabled' ? (
+                            <span className="badge badge-danger" style={{ background: '#fee2e2', color: '#dc2626' }}>● Disabled</span>
+                          ) : (
+                            <span className="badge badge-success">● Active Admin</span>
+                          )}
+                        </td>
+                        <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                          {isMaster ? (
+                            <span className="badge badge-primary" style={{ background: '#0f172a', color: '#ffffff', padding: '4px 8px' }}>👑 Master Super Admin (Protected)</span>
+                          ) : isCurrentLoggedInSuperAdmin ? (
+                            <>
+                              <button
+                                onClick={() => handleToggleAdminStatus(admin.id)}
+                                style={{
+                                  background: admin.status === 'disabled' ? '#2563eb' : '#d97706',
+                                  color: '#ffffff',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  padding: '4px 10px',
+                                  fontSize: '0.78rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {admin.status === 'disabled' ? 'Enable' : 'Disable'}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteAdminAccount(admin.id, admin.full_name)}
+                                style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '4px 10px', fontSize: '0.78rem', cursor: 'pointer' }}
+                              >
+                                Delete / Revoke
+                              </button>
+                            </>
+                          ) : (
+                            <span className="badge badge-secondary" style={{ padding: '4px 8px', fontSize: '0.72rem' }}>Restricted to Super Admin</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
