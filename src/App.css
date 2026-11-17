@@ -710,7 +710,7 @@ body {
     display: block !important;
   }
 
-  /* Off-canvas mobile sidebar drawer */
+  /* Off-canvas glossy glassmorphism mobile sidebar drawer */
   .admin-sidebar {
     position: fixed !important;
     top: 0 !important;
@@ -720,18 +720,20 @@ body {
     max-width: 86vw !important;
     height: 100vh !important;
     transform: translateX(-100%) !important;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
     z-index: 1000 !important;
     box-shadow: none !important;
     overflow-y: auto !important;
-    background: #ffffff !important;
-    border-right: 1px solid #e2e8f0 !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.6) !important;
   }
 
-  /* Drawer slides in when open */
+  /* Drawer slides in when open with glossy glass shadow */
   .admin-sidebar.drawer-open {
     transform: translateX(0) !important;
-    box-shadow: 12px 0 35px rgba(0, 0, 0, 0.35) !important;
+    box-shadow: 16px 0 40px rgba(15, 23, 42, 0.25), inset -1px 0 0 rgba(255, 255, 255, 0.4) !important;
   }
 
   .admin-main {
