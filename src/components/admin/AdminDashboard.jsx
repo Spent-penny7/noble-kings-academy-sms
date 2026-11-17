@@ -3,7 +3,16 @@ import { db } from '../../supabase/client';
 
 function AdminDashboard({ onLogout }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [tabLoading, setTabLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const switchTab = (tabName) => {
+    if (activeTab === tabName) return;
+    setTabLoading(true);
+    setActiveTab(tabName);
+    setMobileMenuOpen(false);
+    setTimeout(() => setTabLoading(false), 220);
+  };
 
   // Data state
   const [schoolSettings, setSchoolSettings] = useState(null);
@@ -569,42 +578,42 @@ function AdminDashboard({ onLogout }) {
         <nav className="sidebar-nav" style={{ padding: '0 8px' }}>
           <button
             className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('overview')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'overview' ? '#16a34a' : '#334155', background: activeTab === 'overview' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
           >
             📊 Overview
           </button>
           <button
             className={`nav-item ${activeTab === 'students' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('students'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('students')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'students' ? '#16a34a' : '#334155', background: activeTab === 'students' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
           >
             🎓 Students
           </button>
           <button
             className={`nav-item ${activeTab === 'teachers' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('teachers'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('teachers')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'teachers' ? '#16a34a' : '#334155', background: activeTab === 'teachers' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
           >
             👨‍🏫 Teachers
           </button>
           <button
             className={`nav-item ${activeTab === 'classes' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('classes'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('classes')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'classes' ? '#16a34a' : '#334155', background: activeTab === 'classes' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
           >
             🏫 Classes &amp; Subjects
           </button>
           <button
             className={`nav-item ${activeTab === 'sessions' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('sessions'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('sessions')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'sessions' ? '#16a34a' : '#334155', background: activeTab === 'sessions' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
           >
             📅 Academic setup
           </button>
           <button
             className={`nav-item ${activeTab === 'curriculum' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('curriculum'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('curriculum')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'curriculum' ? '#16a34a' : '#334155', background: activeTab === 'curriculum' ? '#dcfce7' : 'transparent', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
           >
             <span>📚 Curriculum</span>
@@ -614,21 +623,21 @@ function AdminDashboard({ onLogout }) {
           </button>
           <button
             className={`nav-item ${activeTab === 'academics' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('academics'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('academics')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'academics' ? '#16a34a' : '#334155', background: activeTab === 'academics' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
           >
             📈 Results
           </button>
           <button
             className={`nav-item ${activeTab === 'announcements' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('announcements'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('announcements')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'announcements' ? '#16a34a' : '#334155', background: activeTab === 'announcements' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
           >
             📢 Announcements
           </button>
           <button
             className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('profile'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('profile')}
             style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'profile' ? '#16a34a' : '#334155', background: activeTab === 'profile' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
           >
             👤 Profile
@@ -741,6 +750,13 @@ function AdminDashboard({ onLogout }) {
         {notification.message && (
           <div className={`notification-banner ${notification.type}`}>
             {notification.message}
+          </div>
+        )}
+
+        {/* Tab Transition Loading Bar */}
+        {tabLoading && (
+          <div className="tab-transition-overlay">
+            <div className="tab-transition-bar"></div>
           </div>
         )}
 

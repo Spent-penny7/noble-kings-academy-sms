@@ -3,7 +3,16 @@ import db from '../../supabase/client';
 
 function StudentDashboard({ onLogout }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [tabLoading, setTabLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const switchTab = (tabName) => {
+    if (activeTab === tabName) return;
+    setTabLoading(true);
+    setActiveTab(tabName);
+    setMobileMenuOpen(false);
+    setTimeout(() => setTabLoading(false), 220);
+  };
   const [studentInfo, setStudentInfo] = useState(null);
   const [results, setResults] = useState([]);
   const [curriculum, setCurriculum] = useState([]);
@@ -102,7 +111,9 @@ function StudentDashboard({ onLogout }) {
       {/* Sidebar Drawer */}
       <aside className={`admin-sidebar ${mobileMenuOpen ? 'drawer-open' : ''}`}>
         <div className="sidebar-brand">
-          <div className="brand-icon">👑</div>
+          <div className="brand-icon">
+            <img src="/images/school-logo.png" alt="Noble Kings Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+          </div>
           <div className="brand-info">
             <h2>Noble Kings</h2>
             <span className="role-badge" style={{ background: '#2563eb', color: '#fff' }}>
@@ -137,31 +148,31 @@ function StudentDashboard({ onLogout }) {
         <nav className="sidebar-nav">
           <button
             className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('overview')}
           >
             📊 Overview
           </button>
           <button
             className={`nav-item ${activeTab === 'results' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('results'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('results')}
           >
             📈 My results
           </button>
           <button
             className={`nav-item ${activeTab === 'curriculum' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('curriculum'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('curriculum')}
           >
             📚 My curriculum
           </button>
           <button
             className={`nav-item ${activeTab === 'teachers' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('teachers'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('teachers')}
           >
             👨‍🏫 My teachers
           </button>
           <button
             className={`nav-item ${activeTab === 'announcements' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('announcements'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('announcements')}
           >
             📢 Announcements
           </button>
@@ -204,6 +215,13 @@ function StudentDashboard({ onLogout }) {
             </button>
           </div>
         </header>
+
+        {/* Tab Transition Loading Bar */}
+        {tabLoading && (
+          <div className="tab-transition-overlay">
+            <div className="tab-transition-bar"></div>
+          </div>
+        )}
 
         {/* TAB 1: OVERVIEW */}
         {activeTab === 'overview' && (
@@ -520,7 +538,9 @@ function StudentDashboard({ onLogout }) {
         {/* Official Printable Report Card Sheet (Displayed ONLY when printing / saving as PDF) */}
         <div className="printable-report-card">
           <div className="print-report-header">
-            <div className="print-school-crest">👑</div>
+            <div className="print-school-crest">
+              <img src="/images/school-logo.png" alt="Noble Kings Academy Crest" style={{ height: '64px', width: 'auto', objectFit: 'contain' }} />
+            </div>
             <div className="print-school-info">
               <h1>NOBLE KINGS ACADEMY</h1>
               <p className="print-motto">Excellence • Integrity • Leadership</p>

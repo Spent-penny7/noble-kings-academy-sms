@@ -3,7 +3,16 @@ import db from '../../supabase/client';
 
 function TeacherDashboard({ onLogout }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [tabLoading, setTabLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const switchTab = (tabName) => {
+    if (activeTab === tabName) return;
+    setTabLoading(true);
+    setActiveTab(tabName);
+    setMobileMenuOpen(false);
+    setTimeout(() => setTabLoading(false), 220);
+  };
   const [teacherInfo, setTeacherInfo] = useState(null);
   const [classes, setClasses] = useState([]);
   const [studentsList, setStudentsList] = useState([]);
@@ -340,7 +349,9 @@ function TeacherDashboard({ onLogout }) {
       {/* Sidebar Drawer */}
       <aside className={`admin-sidebar ${mobileMenuOpen ? 'drawer-open' : ''}`}>
         <div className="sidebar-brand">
-          <div className="brand-icon">👑</div>
+          <div className="brand-icon">
+            <img src="/images/school-logo.png" alt="Noble Kings Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+          </div>
           <div className="brand-info">
             <h2>Noble Kings</h2>
             <span className="role-badge" style={{ background: '#2563eb', color: '#fff' }}>
@@ -368,31 +379,31 @@ function TeacherDashboard({ onLogout }) {
         <nav className="sidebar-nav">
           <button
             className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('overview'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('overview')}
           >
             📊 Overview
           </button>
           <button
             className={`nav-item ${activeTab === 'results' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('results'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('results')}
           >
             📈 Student Results
           </button>
           <button
             className={`nav-item ${activeTab === 'curriculum' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('curriculum'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('curriculum')}
           >
             📚 Curriculum
           </button>
           <button
             className={`nav-item ${activeTab === 'classes' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('classes'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('classes')}
           >
             👨‍🏫 My classes
           </button>
           <button
             className={`nav-item ${activeTab === 'announcements' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('announcements'); setMobileMenuOpen(false); }}
+            onClick={() => switchTab('announcements')}
           >
             📢 Announcements
           </button>
@@ -432,6 +443,13 @@ function TeacherDashboard({ onLogout }) {
         {notification.message && (
           <div className={`notification-banner ${notification.type}`}>
             {notification.message}
+          </div>
+        )}
+
+        {/* Tab Transition Loading Bar */}
+        {tabLoading && (
+          <div className="tab-transition-overlay">
+            <div className="tab-transition-bar"></div>
           </div>
         )}
 

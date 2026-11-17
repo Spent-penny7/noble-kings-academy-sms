@@ -6,11 +6,18 @@ import bgWallpaper from '../../assets/bg-wallpaper.png';
 function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isAdminLoginMode, setIsAdminLoginMode] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [generatedId, setGeneratedId] = useState('');
   const navigate = useNavigate();
+
+  const triggerTransition = (callback) => {
+    setIsTransitioning(true);
+    callback();
+    setTimeout(() => setIsTransitioning(false), 220);
+  };
 
   // Forgot Password Modal State
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -123,6 +130,11 @@ function LoginPage() {
   return (
     <div className="cg-centered-auth-wrapper" style={{ backgroundImage: `url(${bgWallpaper})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed' }}>
       <div className="cg-centered-card">
+        {isTransitioning && (
+          <div className="tab-transition-overlay">
+            <div className="tab-transition-bar"></div>
+          </div>
+        )}
         <div className="cg-form-container">
           <div className="cg-pill-tag">NOBLE KINGS ACADEMY</div>
 
@@ -201,11 +213,13 @@ function LoginPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setIsAdminLoginMode(true);
-                      setError('');
-                      setSuccess('');
-                      setLoginIdentifier('');
-                      setLoginPassword('');
+                      triggerTransition(() => {
+                        setIsAdminLoginMode(true);
+                        setError('');
+                        setSuccess('');
+                        setLoginIdentifier('');
+                        setLoginPassword('');
+                      });
                     }}
                     style={{ background: 'none', border: 'none', color: '#16a34a', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
@@ -215,11 +229,13 @@ function LoginPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setIsAdminLoginMode(false);
-                      setError('');
-                      setSuccess('');
-                      setLoginIdentifier('');
-                      setLoginPassword('');
+                      triggerTransition(() => {
+                        setIsAdminLoginMode(false);
+                        setError('');
+                        setSuccess('');
+                        setLoginIdentifier('');
+                        setLoginPassword('');
+                      });
                     }}
                     style={{ background: 'none', border: 'none', color: '#475569', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
                   >
@@ -394,10 +410,12 @@ function LoginPage() {
                   type="button"
                   className="cg-link-button"
                   onClick={() => {
-                    setIsSignUp(true);
-                    setIsAdminLoginMode(false);
-                    setError('');
-                    setSuccess('');
+                    triggerTransition(() => {
+                      setIsSignUp(true);
+                      setIsAdminLoginMode(false);
+                      setError('');
+                      setSuccess('');
+                    });
                   }}
                 >
                   Create an account
@@ -410,10 +428,12 @@ function LoginPage() {
                   type="button"
                   className="cg-link-button"
                   onClick={() => {
-                    setIsSignUp(false);
-                    setIsAdminLoginMode(false);
-                    setError('');
-                    setSuccess('');
+                    triggerTransition(() => {
+                      setIsSignUp(false);
+                      setIsAdminLoginMode(false);
+                      setError('');
+                      setSuccess('');
+                    });
                   }}
                 >
                   Sign in here
