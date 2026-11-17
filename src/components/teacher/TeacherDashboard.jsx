@@ -365,10 +365,10 @@ function TeacherDashboard({ onLogout }) {
 
         <div style={{ padding: '8px 16px 12px' }}>
           {/* Active Session & Term Badge - Higher Vertically */}
-          <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '8px 10px', fontSize: '0.78rem', color: '#166534', marginBottom: '8px' }}>
+          <div style={{ background: '#14532d', border: '1px solid #22c55e', borderRadius: '6px', padding: '8px 10px', fontSize: '0.78rem', color: '#ffffff', marginBottom: '8px' }}>
             <strong>📅 {currentSession?.session_name || '2024 - 2025'} Session</strong><br />
             Term: <strong>{currentSession?.term || currentSession?.active_term || 'Third Term'}</strong><br />
-            <span style={{ fontSize: '0.7rem', color: '#15803d' }}>Noble Kings Academy</span>
+            <span style={{ fontSize: '0.7rem', color: '#86efac' }}>Noble Kings Academy</span>
           </div>
 
           <button onClick={onLogout} className="btn-logout" style={{ width: '100%', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '8px', padding: '8px 12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}>

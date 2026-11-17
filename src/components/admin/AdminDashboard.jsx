@@ -541,36 +541,40 @@ function AdminDashboard({ onLogout }) {
       )}
 
       {/* Sidebar matching Figma 02 · Admin overview */}
-      <aside className={`admin-sidebar ${mobileMenuOpen ? 'drawer-open' : ''}`} style={{ background: '#f8fafc', borderRight: '1px solid #e2e8f0', color: '#0f172a' }}>
-        <div className="sidebar-brand" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="brand-info">
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px', margin: 0 }}>Noble Kings Academy</h2>
-            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.5px' }}>SCHOOL MANAGEMENT</span>
+      <aside className={`admin-sidebar ${mobileMenuOpen ? 'drawer-open' : ''}`} style={{ background: '#1e293b', borderRight: '1px solid #334155', color: '#ffffff' }}>
+        <div className="sidebar-brand" style={{ borderBottom: '1px solid #334155', paddingBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img src="/images/school-logo.png" alt="Noble Kings Academy Logo" style={{ height: '36px', width: 'auto', objectFit: 'contain' }} />
+            <div className="brand-info">
+              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px', margin: 0 }}>Noble Kings Academy</h2>
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.5px' }}>SCHOOL MANAGEMENT</span>
+            </div>
           </div>
           <button
             type="button"
             className="drawer-close-btn"
             onClick={() => setMobileMenuOpen(false)}
             aria-label="Close Menu"
+            style={{ color: '#ffffff' }}
           >
             ✕
           </button>
         </div>
 
         <div style={{ padding: '12px 16px 8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: '#e2e8f0', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, color: '#334155' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', fontSize: '0.82rem', fontWeight: 700, color: '#ffffff' }}>
             <span>Admin workspace</span>
             <span>🔒</span>
           </div>
 
           {/* Active Session & Term Badge - Higher Vertically */}
-          <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '8px 10px', fontSize: '0.78rem', color: '#166534', marginTop: '8px' }}>
+          <div style={{ background: '#14532d', border: '1px solid #22c55e', borderRadius: '6px', padding: '8px 10px', fontSize: '0.78rem', color: '#ffffff', marginTop: '8px' }}>
             <strong>📅 {currentSession?.session_name || '2024 - 2025'} Session</strong><br />
             Term: <strong>{currentSession?.term || currentSession?.active_term || 'Third Term'}</strong><br />
-            <span style={{ fontSize: '0.7rem', color: '#15803d' }}>Noble Kings Academy</span>
+            <span style={{ fontSize: '0.7rem', color: '#86efac' }}>Noble Kings Academy</span>
           </div>
 
-          <button onClick={onLogout} className="btn-logout" style={{ marginTop: '10px', width: '100%', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '8px 12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}>
+          <button onClick={onLogout} className="btn-logout" style={{ marginTop: '10px', width: '100%', background: '#fee2e2', color: '#dc2626', border: '1.5px solid #fca5a5', borderRadius: '8px', padding: '8px 12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.85rem' }}>
             🚪 Sign Out
           </button>
         </div>
@@ -579,42 +583,42 @@ function AdminDashboard({ onLogout }) {
           <button
             className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`}
             onClick={() => switchTab('overview')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'overview' ? '#16a34a' : '#334155', background: activeTab === 'overview' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'overview' ? '#ffffff' : '#cbd5e1', background: activeTab === 'overview' ? '#16a34a' : 'transparent', fontWeight: 600 }}
           >
             📊 Overview
           </button>
           <button
             className={`nav-item ${activeTab === 'students' ? 'active' : ''}`}
             onClick={() => switchTab('students')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'students' ? '#16a34a' : '#334155', background: activeTab === 'students' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'students' ? '#ffffff' : '#cbd5e1', background: activeTab === 'students' ? '#16a34a' : 'transparent', fontWeight: 600 }}
           >
             🎓 Students
           </button>
           <button
             className={`nav-item ${activeTab === 'teachers' ? 'active' : ''}`}
             onClick={() => switchTab('teachers')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'teachers' ? '#16a34a' : '#334155', background: activeTab === 'teachers' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'teachers' ? '#ffffff' : '#cbd5e1', background: activeTab === 'teachers' ? '#16a34a' : 'transparent', fontWeight: 600 }}
           >
             👨‍🏫 Teachers
           </button>
           <button
             className={`nav-item ${activeTab === 'classes' ? 'active' : ''}`}
             onClick={() => switchTab('classes')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'classes' ? '#16a34a' : '#334155', background: activeTab === 'classes' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'classes' ? '#ffffff' : '#cbd5e1', background: activeTab === 'classes' ? '#16a34a' : 'transparent', fontWeight: 600 }}
           >
             🏫 Classes &amp; Subjects
           </button>
           <button
             className={`nav-item ${activeTab === 'sessions' ? 'active' : ''}`}
             onClick={() => switchTab('sessions')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'sessions' ? '#16a34a' : '#334155', background: activeTab === 'sessions' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'sessions' ? '#ffffff' : '#cbd5e1', background: activeTab === 'sessions' ? '#16a34a' : 'transparent', fontWeight: 600 }}
           >
             📅 Academic setup
           </button>
           <button
             className={`nav-item ${activeTab === 'curriculum' ? 'active' : ''}`}
             onClick={() => switchTab('curriculum')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'curriculum' ? '#16a34a' : '#334155', background: activeTab === 'curriculum' ? '#dcfce7' : 'transparent', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'curriculum' ? '#ffffff' : '#cbd5e1', background: activeTab === 'curriculum' ? '#16a34a' : 'transparent', fontWeight: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
           >
             <span>📚 Curriculum</span>
             <span style={{ background: '#16a34a', color: '#fff', fontSize: '0.7rem', padding: '1px 6px', borderRadius: '10px' }}>
@@ -624,21 +628,21 @@ function AdminDashboard({ onLogout }) {
           <button
             className={`nav-item ${activeTab === 'academics' ? 'active' : ''}`}
             onClick={() => switchTab('academics')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'academics' ? '#16a34a' : '#334155', background: activeTab === 'academics' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'academics' ? '#ffffff' : '#cbd5e1', background: activeTab === 'academics' ? '#16a34a' : 'transparent', fontWeight: 600 }}
           >
             📈 Results
           </button>
           <button
             className={`nav-item ${activeTab === 'announcements' ? 'active' : ''}`}
             onClick={() => switchTab('announcements')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'announcements' ? '#16a34a' : '#334155', background: activeTab === 'announcements' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'announcements' ? '#ffffff' : '#cbd5e1', background: activeTab === 'announcements' ? '#16a34a' : 'transparent', fontWeight: 600 }}
           >
             📢 Announcements
           </button>
           <button
             className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => switchTab('profile')}
-            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'profile' ? '#16a34a' : '#334155', background: activeTab === 'profile' ? '#dcfce7' : 'transparent', fontWeight: 600 }}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'profile' ? '#ffffff' : '#cbd5e1', background: activeTab === 'profile' ? '#16a34a' : 'transparent', fontWeight: 600 }}
           >
             👤 Profile
           </button>

@@ -710,7 +710,7 @@ body {
     display: block !important;
   }
 
-  /* Off-canvas glossy glassmorphism mobile sidebar drawer */
+  /* Off-canvas glossy dark grey glassmorphism mobile sidebar drawer */
   .admin-sidebar {
     position: fixed !important;
     top: 0 !important;
@@ -724,10 +724,11 @@ body {
     z-index: 1000 !important;
     box-shadow: none !important;
     overflow-y: auto !important;
-    background: rgba(255, 255, 255, 0.88) !important;
+    background: rgba(15, 23, 42, 0.94) !important;
     backdrop-filter: blur(16px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.6) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
   }
 
   /* Drawer slides in when open with glossy glass shadow */
