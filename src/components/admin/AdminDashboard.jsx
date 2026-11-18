@@ -63,6 +63,9 @@ function AdminDashboard({ onLogout }) {
   const [selectedTeacherClasses, setSelectedTeacherClasses] = useState([]);
   const [resetUserPasswordModal, setResetUserPasswordModal] = useState(null);
   const [newResetPasswordInput, setNewResetPasswordInput] = useState('');
+  const [editingResultModal, setEditingResultModal] = useState(null);
+  const [editingResultSubjects, setEditingResultSubjects] = useState([]);
+  const [editingAdminModal, setEditingAdminModal] = useState(null);
 
   // Modal / Form States
   const [showClassModal, setShowClassModal] = useState(false);
@@ -422,6 +425,51 @@ function AdminDashboard({ onLogout }) {
       const refreshed = await db.getAdmins();
       if (refreshed.data) setAdminsList(refreshed.data);
       showNotice(`✓ Admin account for ${name} has been revoked and removed.`);
+    }
+  };
+
+  const handleSaveEditedResult = async (e) => {
+    e.preventDefault();
+    if (!editingResultModal) return;
+    for (const sub of editingResultSubjects) {
+      const ca = Number(sub.ca_score || 0);
+      const exam = Number(sub.exam_score || 0);
+      const total = ca + exam;
+      let grade = 'F';
+      let remark = 'Fail';
+      if (total >= 70) { grade = 'A'; remark = 'Excellent'; }
+      else if (total >= 60) { grade = 'B'; remark = 'Very Good'; }
+      else if (total >= 50) { grade = 'C'; remark = 'Good'; }
+      else if (total >= 45) { grade = 'D'; remark = 'Pass'; }
+
+      await db.updateResult({
+        ...sub,
+        ca_score: ca,
+        exam_score: exam,
+        total_score: total,
+        grade,
+        remark: sub.remark || remark
+      });
+    }
+    const refreshed = await db.getAllResults();
+    if (refreshed.data) setAllResults(refreshed.data);
+    showNotice(`✓ Updated result scores for student ID ${editingResultModal.student_id}!`);
+    setEditingResultModal(null);
+  };
+
+  const handleSaveEditedAdminProfile = async (e) => {
+    e.preventDefault();
+    if (!editingAdminModal) return;
+    const { error } = await db.updateAdminProfile(editingAdminModal);
+    if (error) {
+      showNotice(error.message, 'error');
+    } else {
+      const refreshed = await db.getAdmins();
+      if (refreshed.data) setAdminsList(refreshed.data);
+      const sessionRes = await db.getSession();
+      if (sessionRes?.session?.profile) setCurrentAdminProfile(sessionRes.session.profile);
+      showNotice(`✓ Administrator profile updated for ${editingAdminModal.full_name}!`);
+      setEditingAdminModal(null);
     }
   };
 
@@ -1331,7 +1379,7 @@ function AdminDashboard({ onLogout }) {
                               <span className="badge badge-secondary">● Unapproved / Hidden</span>
                             )}
                           </td>
-                          <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                          <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                             <button
                               onClick={() => setSelectedStudentResultModal({
                                 student_id: item.stId,
@@ -1343,6 +1391,16 @@ function AdminDashboard({ onLogout }) {
                               style={{ background: '#334155', color: '#fff', padding: '4px 10px', fontSize: '0.78rem' }}
                             >
                               👁️ View Result
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingResultModal({ student_id: item.stId, student_name: item.student_name });
+                                setEditingResultSubjects(item.studentResults);
+                              }}
+                              className="btn-secondary"
+                              style={{ background: '#0b2a5c', color: '#ffffff', padding: '4px 10px', fontSize: '0.78rem', fontWeight: 600 }}
+                            >
+                              ✏️ Edit Result
                             </button>
 
                             {!item.isApproved ? (
@@ -1669,9 +1727,24 @@ function AdminDashboard({ onLogout }) {
                   <h3 style={{ fontSize: '1.4rem', color: '#0f172a', fontWeight: 800, margin: '2px 0' }}>
                     {currentAdminProfile?.full_name || 'Dr. Samuel Adebayo'}
                   </h3>
-                  <p style={{ fontSize: '0.88rem', color: '#475569', margin: 0 }}>
+                  <p style={{ fontSize: '0.88rem', color: '#475569', margin: '0 0 10px' }}>
                     Admin ID: <code>{currentAdminProfile?.student_id || '000000'}</code> | Email: <strong>{currentAdminProfile?.email || 'admin@school.com'}</strong>
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => setEditingAdminModal(currentAdminProfile || {
+                      id: 'prof-admin-1',
+                      student_id: '000000',
+                      full_name: 'Dr. Samuel Adebayo',
+                      email: 'admin@school.com',
+                      phone: '+1-555-0100',
+                      admin_title: 'School Principal & Super Admin'
+                    })}
+                    className="btn-secondary"
+                    style={{ background: '#0b2a5c', color: '#ffffff', padding: '4px 12px', fontSize: '0.78rem', fontWeight: 600 }}
+                  >
+                    ✏️ Edit Profile Details
+                  </button>
                 </div>
               </div>
 
@@ -1849,6 +1922,13 @@ function AdminDashboard({ onLogout }) {
                           )}
                         </td>
                         <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => setEditingAdminModal(admin)}
+                            className="btn-secondary"
+                            style={{ background: '#0b2a5c', color: '#ffffff', padding: '4px 10px', fontSize: '0.78rem', fontWeight: 600 }}
+                          >
+                            ✏️ Edit Admin
+                          </button>
                           {isMaster ? (
                             <span className="badge badge-primary" style={{ background: '#0f172a', color: '#ffffff', padding: '4px 8px' }}>👑 Master Super Admin (Protected)</span>
                           ) : isCurrentLoggedInSuperAdmin ? (
@@ -2297,7 +2377,7 @@ function AdminDashboard({ onLogout }) {
                 </table>
               </div>
 
-              <div className="modal-actions" style={{ justifyContent: 'space-between' }}>
+              <div className="modal-actions" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                 <button
                   type="button"
                   onClick={() => setSelectedStudentResultModal(null)}
@@ -2305,7 +2385,20 @@ function AdminDashboard({ onLogout }) {
                 >
                   Close Preview
                 </button>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const currentModal = selectedStudentResultModal;
+                      setSelectedStudentResultModal(null);
+                      setEditingResultModal({ student_id: currentModal.student_id, student_name: currentModal.student_name });
+                      setEditingResultSubjects(currentModal.subjects);
+                    }}
+                    className="btn-secondary"
+                    style={{ background: '#0b2a5c', color: '#ffffff', padding: '8px 14px', fontWeight: 'bold' }}
+                  >
+                    ✏️ Edit Result Breakdown
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
@@ -2486,6 +2579,160 @@ function AdminDashboard({ onLogout }) {
                 <div className="modal-actions">
                   <button type="button" onClick={() => setShowSessionModal(false)} className="btn btn-secondary">Cancel</button>
                   <button type="submit" className="btn btn-primary">Create Setup</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: EDIT STUDENT RESULT BREAKDOWN */}
+        {editingResultModal && (
+          <div className="modal-overlay">
+            <div className="modal-card" style={{ maxWidth: '650px' }}>
+              <div className="card-header-flex">
+                <h3 style={{ color: '#000000', fontWeight: 800, margin: 0 }}>
+                  ✏️ Edit Results for {editingResultModal.student_name}
+                </h3>
+                <span className="badge badge-primary">Student ID: {editingResultModal.student_id}</span>
+              </div>
+
+              <form onSubmit={handleSaveEditedResult}>
+                <div className="table-responsive mb-20" style={{ marginTop: '12px' }}>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        <th>CA (/40)</th>
+                        <th>Exam (/60)</th>
+                        <th>Remark</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {editingResultSubjects.map((sub, index) => (
+                        <tr key={sub.id || index}>
+                          <td><strong>{sub.subject_name}</strong></td>
+                          <td>
+                            <input
+                              type="number"
+                              min={0}
+                              max={40}
+                              value={sub.ca_score}
+                              onChange={(e) => {
+                                const copy = [...editingResultSubjects];
+                                copy[index].ca_score = Number(e.target.value);
+                                setEditingResultSubjects(copy);
+                              }}
+                              style={{ width: '70px', padding: '4px 6px' }}
+                              required
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min={0}
+                              max={60}
+                              value={sub.exam_score}
+                              onChange={(e) => {
+                                const copy = [...editingResultSubjects];
+                                copy[index].exam_score = Number(e.target.value);
+                                setEditingResultSubjects(copy);
+                              }}
+                              style={{ width: '70px', padding: '4px 6px' }}
+                              required
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              value={sub.remark || ''}
+                              onChange={(e) => {
+                                const copy = [...editingResultSubjects];
+                                copy[index].remark = e.target.value;
+                                setEditingResultSubjects(copy);
+                              }}
+                              placeholder="e.g. Excellent"
+                              style={{ width: '120px', padding: '4px 6px' }}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="modal-actions">
+                  <button type="button" onClick={() => setEditingResultModal(null)} className="btn btn-secondary">
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary" style={{ background: '#0b2a5c' }}>
+                    Save Result Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: EDIT ADMINISTRATOR PROFILE */}
+        {editingAdminModal && (
+          <div className="modal-overlay">
+            <div className="modal-card" style={{ maxWidth: '520px' }}>
+              <h3 style={{ color: '#000000', fontWeight: 800, margin: '0 0 6px' }}>
+                ✏️ Edit Administrator Details
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>
+                Admin ID: <code>{editingAdminModal.student_id || '000000'}</code>
+              </p>
+
+              <form onSubmit={handleSaveEditedAdminProfile}>
+                <div className="cg-form-row mb-20">
+                  <div className="cg-input-group">
+                    <label style={{ color: '#0f172a', fontWeight: 700 }}>Administrator Full Name</label>
+                    <input
+                      type="text"
+                      value={editingAdminModal.full_name || ''}
+                      onChange={(e) => setEditingAdminModal({ ...editingAdminModal, full_name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="cg-input-group">
+                    <label style={{ color: '#0f172a', fontWeight: 700 }}>Email Address</label>
+                    <input
+                      type="email"
+                      value={editingAdminModal.email || ''}
+                      onChange={(e) => setEditingAdminModal({ ...editingAdminModal, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="cg-form-row mb-20">
+                  <div className="cg-input-group">
+                    <label style={{ color: '#0f172a', fontWeight: 700 }}>Phone Number</label>
+                    <input
+                      type="tel"
+                      value={editingAdminModal.phone || ''}
+                      onChange={(e) => setEditingAdminModal({ ...editingAdminModal, phone: e.target.value })}
+                    />
+                  </div>
+                  <div className="cg-input-group">
+                    <label style={{ color: '#0f172a', fontWeight: 700 }}>Designation / Title</label>
+                    <input
+                      type="text"
+                      value={editingAdminModal.admin_title || ''}
+                      onChange={(e) => setEditingAdminModal({ ...editingAdminModal, admin_title: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="modal-actions">
+                  <button type="button" onClick={() => setEditingAdminModal(null)} className="btn btn-secondary">
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary" style={{ background: '#0b2a5c' }}>
+                    Save Admin Details
+                  </button>
                 </div>
               </form>
             </div>

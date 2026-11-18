@@ -1460,6 +1460,54 @@ export const db = {
     };
   },
 
+  updateResult: async (resultData) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('results')
+          .update(resultData)
+          .eq('id', resultData.id)
+          .select()
+          .single();
+        if (!error && data) return { data, error: null };
+      } catch (err) {
+        console.warn('Supabase updateResult error:', err);
+      }
+    }
+    const currentMock = loadMockData();
+    const index = (currentMock.results || []).findIndex(r => r.id === resultData.id);
+    if (index !== -1) {
+      currentMock.results[index] = { ...currentMock.results[index], ...resultData };
+      saveMockData(currentMock);
+      return { data: currentMock.results[index], error: null };
+    }
+    return { data: null, error: { message: 'Result record not found' } };
+  },
+
+  updateAdminProfile: async (adminData) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .update(adminData)
+          .eq('id', adminData.id)
+          .select()
+          .single();
+        if (!error && data) return { data, error: null };
+      } catch (err) {
+        console.warn('Supabase updateAdminProfile error:', err);
+      }
+    }
+    const currentMock = loadMockData();
+    const index = (currentMock.profiles || []).findIndex(p => p.id === adminData.id || p.student_id === adminData.student_id);
+    if (index !== -1) {
+      currentMock.profiles[index] = { ...currentMock.profiles[index], ...adminData };
+      saveMockData(currentMock);
+      return { data: currentMock.profiles[index], error: null };
+    }
+    return { data: null, error: { message: 'Admin profile not found' } };
+  },
+
   getAdmins: async () => {
     if (isSupabaseConfigured()) {
       try {
