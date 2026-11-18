@@ -1026,6 +1026,38 @@ export const db = {
     return { data: newStudent, error: null };
   },
 
+  deleteTeacher: async (teacherId) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('teachers').delete().eq('id', teacherId);
+        if (!error) return { error: null };
+      } catch (err) {
+        console.warn('Supabase deleteTeacher error:', err);
+      }
+    }
+    const currentMock = loadMockData();
+    currentMock.teachers = currentMock.teachers.filter(t => t.id !== teacherId && t.employee_id !== teacherId);
+    currentMock.profiles = currentMock.profiles.filter(p => p.id !== teacherId && p.student_id !== teacherId && p.user_id !== teacherId);
+    saveMockData(currentMock);
+    return { error: null };
+  },
+
+  deleteStudent: async (studentId) => {
+    if (isSupabaseConfigured()) {
+      try {
+        const { error } = await supabase.from('students').delete().eq('id', studentId);
+        if (!error) return { error: null };
+      } catch (err) {
+        console.warn('Supabase deleteStudent error:', err);
+      }
+    }
+    const currentMock = loadMockData();
+    currentMock.students = currentMock.students.filter(s => s.id !== studentId && s.student_id !== studentId);
+    currentMock.profiles = currentMock.profiles.filter(p => p.id !== studentId && p.student_id !== studentId && p.user_id !== studentId);
+    saveMockData(currentMock);
+    return { error: null };
+  },
+
   // Announcements
   getAnnouncements: async (targetAudience = 'all') => {
     if (isSupabaseConfigured()) {

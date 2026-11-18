@@ -342,6 +342,30 @@ function AdminDashboard({ onLogout }) {
     }
   };
 
+  const handleDeleteTeacher = async (teacherId, name) => {
+    if (!window.confirm(`Are you sure you want to permanently delete teacher record for ${name}?`)) return;
+    const { error } = await db.deleteTeacher(teacherId);
+    if (error) {
+      showNotice(error.message, 'error');
+    } else {
+      const res = await db.getTeachers();
+      if (res.data) setTeachers(res.data);
+      showNotice(`Teacher ${name} deleted successfully.`);
+    }
+  };
+
+  const handleDeleteStudent = async (studentId, name) => {
+    if (!window.confirm(`Are you sure you want to permanently delete student record for ${name}?`)) return;
+    const { error } = await db.deleteStudent(studentId);
+    if (error) {
+      showNotice(error.message, 'error');
+    } else {
+      const res = await db.getStudents();
+      if (res.data) setStudents(res.data);
+      showNotice(`Student record for ${name} deleted successfully.`);
+    }
+  };
+
   const handleSaveAssignedClasses = async (e) => {
     e.preventDefault();
     if (!assignClassTeacherModal) return;
@@ -1443,7 +1467,7 @@ function AdminDashboard({ onLogout }) {
                         <button
                           onClick={() => handleToggleTeacherStatus(t.id)}
                           style={{
-                            background: t.status === 'disabled' ? '#2563eb' : '#ef4444',
+                            background: t.status === 'disabled' ? '#2563eb' : '#d97706',
                             color: '#ffffff',
                             border: 'none',
                             borderRadius: '4px',
@@ -1453,6 +1477,20 @@ function AdminDashboard({ onLogout }) {
                           }}
                         >
                           {t.status === 'disabled' ? 'Enable' : 'Disable'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTeacher(t.id, t.full_name || t.profiles?.full_name)}
+                          style={{
+                            background: '#dc2626',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '4px 10px',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🗑️ Delete
                         </button>
                       </td>
                     </tr>
@@ -1537,7 +1575,7 @@ function AdminDashboard({ onLogout }) {
                         <button
                           onClick={() => handleToggleStudentStatus(stu.id)}
                           style={{
-                            background: stu.status === 'disabled' ? '#2563eb' : '#ef4444',
+                            background: stu.status === 'disabled' ? '#2563eb' : '#d97706',
                             color: '#ffffff',
                             border: 'none',
                             borderRadius: '4px',
@@ -1547,6 +1585,20 @@ function AdminDashboard({ onLogout }) {
                           }}
                         >
                           {stu.status === 'disabled' ? 'Enable' : 'Disable'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStudent(stu.id, stu.full_name || stu.profiles?.full_name)}
+                          style={{
+                            background: '#dc2626',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '4px 10px',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🗑️ Delete
                         </button>
                       </td>
                     </tr>
