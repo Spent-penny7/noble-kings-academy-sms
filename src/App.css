@@ -1898,6 +1898,264 @@ body {
    OFFICIAL PRINTABLE REPORT CARD STYLES
    ========================================================================== */
 
+/* Official Physical Report Card Sheet (Matching Photograph) */
+.official-nkqa-report-sheet {
+  background: #ffffff;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 16px;
+  border: 1px solid #000000;
+  max-width: 900px;
+  margin: 0 auto 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.nkqa-letterhead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 8px;
+  margin-bottom: 6px;
+}
+
+.nkqa-crest-img {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+}
+
+.nkqa-header-details {
+  flex: 1;
+  text-align: center;
+}
+
+.nkqa-school-title {
+  font-size: 15pt;
+  font-weight: 900;
+  margin: 0 0 2px;
+  color: #0b2a5c;
+  letter-spacing: 0.5px;
+}
+
+.nkqa-address-text {
+  font-size: 8pt;
+  font-weight: 700;
+  margin: 1px 0;
+  color: #000000;
+}
+
+.nkqa-contact-text {
+  font-size: 7.5pt;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 1px 0 0;
+  color: #333333;
+}
+
+.nkqa-banner-bar {
+  background: #0b2a5c;
+  color: #ffffff;
+  text-align: center;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  border: 1px solid #000000;
+}
+
+.nkqa-session-title {
+  font-size: 9pt;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.nkqa-sheet-title {
+  font-size: 11pt;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.nkqa-meta-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+}
+
+.nkqa-meta-table td {
+  border: 1px solid #000000;
+  padding: 4px 8px;
+}
+
+.meta-label {
+  background: #f1f5f9;
+  font-weight: 800;
+  color: #000000;
+}
+
+.meta-val {
+  background: #ffffff;
+}
+
+.nkqa-marks-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+  font-size: 8pt;
+}
+
+.nkqa-marks-table th,
+.nkqa-marks-table td {
+  border: 1px solid #000000;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.th-subjects {
+  width: 26%;
+  text-align: left !important;
+  background: #cbd5e1;
+  font-size: 8.5pt;
+  font-weight: 900;
+}
+
+.th-marks-header {
+  background: #cbd5e1;
+  font-size: 8.5pt;
+  font-weight: 900;
+}
+
+.th-grade {
+  background: #cbd5e1;
+  font-size: 8.5pt;
+  font-weight: 900;
+}
+
+.nkqa-marks-table th {
+  background: #e2e8f0;
+  font-weight: 800;
+  font-size: 7.5pt;
+}
+
+.td-subject-name {
+  text-align: left !important;
+}
+
+.tr-summary td {
+  background: #f1f5f9;
+  font-weight: 800;
+  font-size: 8.5pt;
+}
+
+.text-right {
+  text-align: right !important;
+  padding-right: 12px !important;
+}
+
+.nkqa-remarks-block {
+  border: 1px solid #000000;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  background: #ffffff;
+}
+
+.remark-row {
+  margin-bottom: 6px;
+}
+
+.remark-label {
+  font-weight: 800;
+  margin-right: 8px;
+}
+
+.remark-text {
+  font-style: italic;
+  color: #1e293b;
+}
+
+.signature-flex-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 8pt;
+  margin-top: 4px;
+}
+
+.sig-line {
+  letter-spacing: -1px;
+}
+
+.official-blue-stamp {
+  display: inline-block;
+  border: 2px dashed #1d4ed8;
+  color: #1d4ed8;
+  padding: 4px 8px;
+  font-weight: 900;
+  font-size: 7.5pt;
+  text-align: center;
+  border-radius: 4px;
+  transform: rotate(-3deg);
+  margin-left: 12px;
+}
+
+.resumption-box {
+  border: 1px solid #000000;
+  padding: 4px 8px;
+  font-size: 8.5pt;
+  background: #f8fafc;
+}
+
+.nkqa-grading-key {
+  font-size: 7pt;
+  font-weight: 800;
+  text-align: center;
+  border: 1px solid #000000;
+  padding: 3px;
+  margin-bottom: 8px;
+  background: #f1f5f9;
+}
+
+.nkqa-eval-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.eval-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7.5pt;
+}
+
+.eval-table th,
+.eval-table td {
+  border: 1px solid #000000;
+  padding: 3px 6px;
+}
+
+.eval-table th {
+  background: #cbd5e1;
+  font-weight: 800;
+  text-align: left;
+}
+
+.eval-table td:last-child {
+  text-align: center;
+  font-weight: bold;
+}
+
+.eval-key-line {
+  font-size: 7pt;
+  font-weight: 800;
+  text-align: center;
+  border-top: 1px solid #000000;
+  padding-top: 2px;
+}
+
 .printable-report-card {
   display: none;
 }
