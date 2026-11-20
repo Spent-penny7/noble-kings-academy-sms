@@ -159,7 +159,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="cg-centered-auth-wrapper" style={{ backgroundColor: '#0f172a', backgroundImage: bgWallpaper ? `url(${bgWallpaper})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <div className="cg-centered-auth-wrapper" style={{ backgroundImage: `url(${bgWallpaper})` }}>
       <div className="cg-centered-card">
         {isTransitioning && (
           <div className="tab-transition-overlay">
