@@ -514,6 +514,19 @@ export const db = {
   getUserRole: async (userId) => {
     if (!userId) return null;
 
+    const mockSessionStr = localStorage.getItem('sms_mock_session');
+    if (mockSessionStr) {
+      try {
+        const session = JSON.parse(mockSessionStr);
+        if (session?.user?.id === userId || session?.profile?.id === userId || session?.profile?.user_id === userId) {
+          if (session?.user?.role) return session.user.role;
+          if (session?.profile?.role) return session.profile.role;
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     if (isSupabaseConfigured()) {
       try {
         const { data } = await supabase
@@ -531,17 +544,7 @@ export const db = {
     const profile = currentMock.profiles.find((p) => p.user_id === userId || p.id === userId || p.student_id === userId);
     if (profile?.role) return profile.role;
 
-    const mockSessionStr = localStorage.getItem('sms_mock_session');
-    if (mockSessionStr) {
-      try {
-        const session = JSON.parse(mockSessionStr);
-        if (session?.profile?.role) return session.profile.role;
-      } catch {
-        // ignore
-      }
-    }
-
-    return 'student';
+    return null;
   },
 
   // Profiles
