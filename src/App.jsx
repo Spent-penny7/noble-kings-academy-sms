@@ -21,21 +21,26 @@ function App() {
       try {
         const { session } = await db.getSession();
         if (!isMounted) return;
-        setSession(session);
         if (session?.user?.id) {
           const role = await db.getUserRole(session.user.id);
           const isApproved = await db.isUserApproved(session.user.id, role);
-          if (!isApproved && role !== 'admin') {
+          if (!role || (!isApproved && role !== 'admin')) {
             await db.signOut();
             if (isMounted) {
               setSession(null);
               setUserRole(null);
             }
           } else {
-            if (isMounted) setUserRole(role);
+            if (isMounted) {
+              setSession(session);
+              setUserRole(role);
+            }
           }
         } else {
-          if (isMounted) setUserRole(null);
+          if (isMounted) {
+            setSession(null);
+            setUserRole(null);
+          }
         }
       } catch (error) {
         console.error('Error checking auth session:', error);
@@ -116,7 +121,7 @@ function App() {
         <Route
           path="/login"
           element={
-            session ? (
+            session && userRole ? (
               userRole === 'teacher' ? <Navigate to="/teacher" replace /> :
               userRole === 'student' ? <Navigate to="/student" replace /> :
               <Navigate to="/admin" replace />
