@@ -67,7 +67,18 @@ function LoginPage() {
       }
     }
     loadDynamicPortalData();
-    return () => { isMounted = false; };
+
+    const handleDataChange = () => {
+      loadDynamicPortalData();
+    };
+    window.addEventListener('sms_data_change', handleDataChange);
+    window.addEventListener('storage', handleDataChange);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('sms_data_change', handleDataChange);
+      window.removeEventListener('storage', handleDataChange);
+    };
   }, []);
 
   const handleRequestReset = async (e) => {

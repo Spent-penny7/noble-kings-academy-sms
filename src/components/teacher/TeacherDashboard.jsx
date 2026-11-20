@@ -125,8 +125,17 @@ function TeacherDashboard({ onLogout }) {
       }
     }
     loadTeacher();
+
+    const handleDataChange = () => {
+      loadTeacher();
+    };
+    window.addEventListener('sms_data_change', handleDataChange);
+    window.addEventListener('storage', handleDataChange);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('sms_data_change', handleDataChange);
+      window.removeEventListener('storage', handleDataChange);
     };
   }, []);
 

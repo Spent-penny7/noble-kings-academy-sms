@@ -127,6 +127,9 @@ const loadMockData = () => {
 
 const saveMockData = (data) => {
   localStorage.setItem('sms_mock_data', JSON.stringify(data));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('sms_data_change'));
+  }
 };
 
 export const db = {
