@@ -158,8 +158,18 @@ function LoginPage() {
     }
   };
 
+  const sessionNameText = (activeSessionInfo && typeof activeSessionInfo.session_name === 'string')
+    ? activeSessionInfo.session_name
+    : '2024/2025';
+
+  const activeTermText = (activeSessionInfo && typeof activeSessionInfo.term === 'string')
+    ? activeSessionInfo.term
+    : (activeSessionInfo && typeof activeSessionInfo.active_term === 'string')
+    ? activeSessionInfo.active_term
+    : 'Third Term';
+
   return (
-    <div className="cg-centered-auth-wrapper" style={{ backgroundImage: `url(${bgWallpaper})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed' }}>
+    <div className="cg-centered-auth-wrapper" style={{ backgroundColor: '#0f172a', backgroundImage: bgWallpaper ? `url(${bgWallpaper})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       <div className="cg-centered-card">
         {isTransitioning && (
           <div className="tab-transition-overlay">
@@ -168,7 +178,7 @@ function LoginPage() {
         )}
         <div className="cg-form-container">
           <div className="cg-pill-tag">
-            NOBLE KINGS ACADEMY • {activeSessionInfo?.session_name || '2024/2025'} SESSION ({activeSessionInfo?.term || activeSessionInfo?.active_term || 'THIRD TERM'})
+            NOBLE KINGS ACADEMY • {sessionNameText} SESSION ({String(activeTermText).toUpperCase()})
           </div>
 
           <h1 className="cg-form-title">
