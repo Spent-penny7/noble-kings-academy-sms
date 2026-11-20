@@ -19,6 +19,7 @@ function StudentDashboard({ onLogout }) {
   const [teachers, setTeachers] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [currentSession, setCurrentSession] = useState(null);
+  const [schoolSettings, setSchoolSettings] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -40,10 +41,12 @@ function StudentDashboard({ onLogout }) {
           const gradeLevel = profileRes?.data?.class_name || studentRes?.data?.class_name || 'Primary 1';
 
           // Fetch grade-filtered and admin-approved data
-          const [resultsRes, currRes, teachersRes] = await Promise.all([
+          const [resultsRes, currRes, teachersRes, settingsRes, sessionRes] = await Promise.all([
             db.getResultsForStudent(studentId),
             db.getCurriculumForGrade(gradeLevel),
-            db.getTeachersForGrade(gradeLevel)
+            db.getTeachersForGrade(gradeLevel),
+            db.getSchoolSettings(),
+            db.getCurrentSession()
           ]);
 
           const mergedInfo = {
@@ -57,7 +60,8 @@ function StudentDashboard({ onLogout }) {
             parent_phone: profileRes?.data?.parent_guardian_phone || studentRes?.data?.parent_guardian_phone || '+1 555-0987'
           };
 
-          const sessionRes = await db.getCurrentSession();
+          if (settingsRes?.data) setSchoolSettings(settingsRes.data);
+          if (sessionRes?.data) setCurrentSession(sessionRes.data);
 
           setStudentInfo(mergedInfo);
           if (resultsRes.data) setResults(resultsRes.data);
@@ -136,11 +140,11 @@ function StudentDashboard({ onLogout }) {
             <img src="/images/school-logo.png" alt="N.K.Q.A Crest" className="nkqa-crest-img" />
           </div>
           <div className="nkqa-header-details">
-            <h1 className="nkqa-school-title">NOBLE KINGS AND QUEENS ACADEMY</h1>
-            <p className="nkqa-address-text">PLOT 25 ROAD D2, ZONE D, BMUKO, DUTSE, ABUJA, F.C.T</p>
+            <h1 className="nkqa-school-title">{(schoolSettings?.school_name || 'NOBLE KINGS AND QUEENS ACADEMY').toUpperCase()}</h1>
+            <p className="nkqa-address-text">{schoolSettings?.school_address || 'PLOT 25 ROAD D2, ZONE D, BMUKO, DUTSE, ABUJA, F.C.T'}</p>
             <p className="nkqa-contact-text">
-              <span>E-MAIL: noblekingsandqueens11@yahoo.com</span>
-              <span>TEL: +2347017372474</span>
+              <span>E-MAIL: {schoolSettings?.school_email || 'noblekingsandqueens11@yahoo.com'}</span>
+              <span>TEL: {schoolSettings?.school_phone || '+2347017372474'}</span>
             </p>
           </div>
         </div>

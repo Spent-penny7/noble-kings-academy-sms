@@ -505,11 +505,11 @@ function AdminDashboard({ onLogout }) {
             <img src="/images/school-logo.png" alt="N.K.Q.A Crest" className="nkqa-crest-img" />
           </div>
           <div className="nkqa-header-details">
-            <h1 className="nkqa-school-title">NOBLE KINGS AND QUEENS ACADEMY</h1>
-            <p className="nkqa-address-text">PLOT 25 ROAD D2, ZONE D, BMUKO, DUTSE, ABUJA, F.C.T</p>
+            <h1 className="nkqa-school-title">{(schoolSettings?.school_name || 'NOBLE KINGS AND QUEENS ACADEMY').toUpperCase()}</h1>
+            <p className="nkqa-address-text">{schoolSettings?.school_address || 'PLOT 25 ROAD D2, ZONE D, BMUKO, DUTSE, ABUJA, F.C.T'}</p>
             <p className="nkqa-contact-text">
-              <span>E-MAIL: noblekingsandqueens11@yahoo.com</span>
-              <span>TEL: +2347017372474</span>
+              <span>E-MAIL: {schoolSettings?.school_email || 'noblekingsandqueens11@yahoo.com'}</span>
+              <span>TEL: {schoolSettings?.school_phone || '+2347017372474'}</span>
             </p>
           </div>
         </div>
