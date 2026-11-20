@@ -103,11 +103,18 @@ const loadMockData = () => {
         parsed.teachers?.some(t => t.employee_id === '200001' || t.full_name === 'Dr. John Doe');
 
       if (!hasDemoData) {
-        if (parsed.profiles) {
-          parsed.profiles.forEach(p => {
-            if (!p.status) p.status = p.is_active === false ? 'disabled' : 'approved';
-          });
+        if (!parsed.profiles || parsed.profiles.length === 0) {
+          parsed.profiles = INITIAL_MOCK_DATA.profiles;
         }
+        if (!parsed.classes || parsed.classes.length === 0) {
+          parsed.classes = INITIAL_MOCK_DATA.classes;
+        }
+        if (!parsed.subjects || parsed.subjects.length === 0) {
+          parsed.subjects = INITIAL_MOCK_DATA.subjects;
+        }
+        parsed.profiles.forEach(p => {
+          if (!p.status) p.status = p.is_active === false ? 'disabled' : 'approved';
+        });
         return parsed;
       }
     } catch {
