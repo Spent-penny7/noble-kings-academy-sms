@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../supabase/client';
-import bgWallpaper from '../../assets/bg-wallpaper.png';
 
 function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -159,7 +158,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="cg-centered-auth-wrapper" style={{ backgroundImage: `url(${bgWallpaper})` }}>
+    <div className="cg-centered-auth-wrapper">
       <div className="cg-centered-card">
         {isTransitioning && (
           <div className="tab-transition-overlay">
