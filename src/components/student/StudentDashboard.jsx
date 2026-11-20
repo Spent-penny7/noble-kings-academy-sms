@@ -527,18 +527,114 @@ function StudentDashboard({ onLogout }) {
           <div className="tab-content">
             <div className="card mb-20" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', background: '#f8fafc', border: '1px solid #cbd5e1' }}>
               <div>
-                <h2 style={{ margin: '0 0 4px', fontSize: '1.3rem', color: '#000000', fontWeight: 800 }}>Official Report Sheet</h2>
-                <p style={{ margin: 0, color: '#475569', fontSize: '0.88rem' }}>Verified academic performance result sheet for {studentInfo?.full_name || 'Student'}.</p>
+                <h2 style={{ margin: '0 0 4px', fontSize: '1.3rem', color: '#000000', fontWeight: 800 }}>My results</h2>
+                <p style={{ margin: 0, color: '#475569', fontSize: '0.88rem' }}>Your published results and academic progress, privately yours.</p>
               </div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <button onClick={handleDownloadReport} className="btn-primary" style={{ background: '#0b2a5c' }}>
-                  📥 Download / Print Report Sheet
+                <select className="cg-select" style={{ width: 'auto', padding: '8px 12px' }}>
+                  <option>{currentSession?.session_name || '2024 / 2025'} session</option>
+                </select>
+                <select className="cg-select" style={{ width: 'auto', padding: '8px 12px' }}>
+                  <option>{currentSession?.term || 'Third term'}</option>
+                </select>
+                <button onClick={handleDownloadReport} className="btn-primary">
+                  📥 Download report card
                 </button>
               </div>
             </div>
 
-            {/* Render Official Physical Report Sheet matching Photograph */}
-            {renderOfficialReportSheet()}
+            <div style={{ fontSize: '0.8rem', color: '#475569', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+              <span>Only your published records appear here.</span>
+              <span>Published Official Report</span>
+            </div>
+
+            {/* Summary Stat Cards */}
+            <div className="stats-grid" style={{ marginBottom: '24px' }}>
+              <div className="card" style={{ padding: '16px', background: '#f8fafc', border: '1px solid #cbd5e1' }}>
+                <small style={{ color: '#475569', fontWeight: 600 }}>OVERALL AVERAGE</small>
+                <h3 style={{ fontSize: '1.6rem', margin: '4px 0 2px', color: '#0f172a' }}>{averageScore.toFixed(1)}%</h3>
+                <p style={{ fontSize: '0.78rem', color: '#475569' }}>Total marks across {results.length} subjects</p>
+              </div>
+              <div className="card" style={{ padding: '16px', background: '#f8fafc', border: '1px solid #cbd5e1' }}>
+                <small style={{ color: '#475569', fontWeight: 600 }}>SUBJECTS PASSED</small>
+                <h3 style={{ fontSize: '1.6rem', margin: '4px 0 2px', color: '#0f172a' }}>{results.length} of {results.length}</h3>
+                <p style={{ fontSize: '0.78rem', color: '#475569' }}>All subjects passed successfully</p>
+              </div>
+              <div className="card" style={{ padding: '16px', background: '#f8fafc', border: '1px solid #cbd5e1' }}>
+                <small style={{ color: '#475569', fontWeight: 600 }}>REPORT CLASS</small>
+                <h3 style={{ fontSize: '1.6rem', margin: '4px 0 2px', color: '#0f172a' }}>{studentInfo?.class_name}</h3>
+                <p style={{ fontSize: '0.78rem', color: '#475569' }}>{studentInfo?.full_name} • {studentInfo?.student_id}</p>
+              </div>
+            </div>
+
+            <div className="dashboard-grid-responsive">
+              {/* Results Table */}
+              <div className="card">
+                <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', color: '#000000', fontWeight: 800 }}>Term Academic Report</h3>
+                <div className="table-responsive">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        <th>CA / 40</th>
+                        <th>Exam / 60</th>
+                        <th>Total</th>
+                        <th>Grade</th>
+                        <th>Remark</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.map((res) => (
+                        <tr key={res.id}>
+                          <td><strong>{res.subject_name}</strong></td>
+                          <td>{res.ca_score}</td>
+                          <td>{res.exam_score}</td>
+                          <td><strong>{res.total_score}</strong></td>
+                          <td>
+                            <span className={`badge ${res.grade === 'A' ? 'badge-success' : 'badge-primary'}`}>
+                              {res.grade}
+                            </span>
+                          </td>
+                          <td>{res.remark}</td>
+                        </tr>
+                      ))}
+                      {results.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="text-center" style={{ padding: '24px', color: '#64748b' }}>
+                            No approved results published yet. Results appear here once approved by the administration.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Sidebar Notes & Grading Guide */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div className="card" style={{ background: '#f8fafc', border: '1px solid #cbd5e1' }}>
+                  <h4 style={{ margin: '0 0 8px', fontSize: '0.95rem', color: '#000000', fontWeight: 800 }}>A note from your teacher</h4>
+                  <p style={{ fontSize: '0.85rem', color: '#334155', margin: 0, lineHeight: 1.5 }}>
+                    &ldquo;{studentInfo?.full_name} has shown steady progress and a thoughtful approach to learning. Keep up the excellent work!&rdquo;
+                  </p>
+                  <div style={{ marginTop: '12px', fontSize: '0.78rem', color: '#475569' }}>
+                    <strong>Sarah Cole</strong><br />Class teacher
+                  </div>
+                </div>
+
+                <div className="card" style={{ background: '#f8fafc', border: '1px solid #cbd5e1' }}>
+                  <h4 style={{ margin: '0 0 8px', fontSize: '0.95rem', color: '#000000', fontWeight: 800 }}>Grading guide</h4>
+                  <div style={{ fontSize: '0.8rem', color: '#334155', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>A+</span><span>90–100 (Exceptional)</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>A</span><span>80–89 (Excellent)</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>B+ / B</span><span>60–79 (Very good)</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>C</span><span>50–59 (Good)</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>D</span><span>40–49 (Pass)</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>F</span><span>Below 40 (Fail)</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

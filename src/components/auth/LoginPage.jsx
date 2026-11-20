@@ -44,7 +44,7 @@ function LoginPage() {
 
   // Dynamic Setup Data States
   const [availableClasses, setAvailableClasses] = useState([]);
-  const [activeSessionInfo, setActiveSessionInfo] = useState(null);
+  const [_activeSessionInfo, setActiveSessionInfo] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -158,16 +158,6 @@ function LoginPage() {
     }
   };
 
-  const sessionNameText = (activeSessionInfo && typeof activeSessionInfo.session_name === 'string')
-    ? activeSessionInfo.session_name
-    : '2024/2025';
-
-  const activeTermText = (activeSessionInfo && typeof activeSessionInfo.term === 'string')
-    ? activeSessionInfo.term
-    : (activeSessionInfo && typeof activeSessionInfo.active_term === 'string')
-    ? activeSessionInfo.active_term
-    : 'Third Term';
-
   return (
     <div className="cg-centered-auth-wrapper" style={{ backgroundColor: '#0f172a', backgroundImage: bgWallpaper ? `url(${bgWallpaper})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       <div className="cg-centered-card">
@@ -177,9 +167,7 @@ function LoginPage() {
           </div>
         )}
         <div className="cg-form-container">
-          <div className="cg-pill-tag">
-            NOBLE KINGS ACADEMY • {sessionNameText} SESSION ({String(activeTermText).toUpperCase()})
-          </div>
+          <div className="cg-pill-tag">NOBLE KINGS ACADEMY</div>
 
           <h1 className="cg-form-title">
             {isSignUp
