@@ -12,7 +12,6 @@ import PublicWebsite from './components/public/PublicWebsite';
 function App() {
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -48,8 +47,6 @@ function App() {
           setSession(null);
           setUserRole(null);
         }
-      } finally {
-        if (isMounted) setLoading(false);
       }
     }
 
@@ -102,15 +99,6 @@ function App() {
     setUserRole(null);
     window.dispatchEvent(new Event('sms_auth_change'));
   };
-
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loader"></div>
-        <p>Loading school portal...</p>
-      </div>
-    );
-  }
 
   return (
     <Router>
