@@ -1035,10 +1035,10 @@ function AdminDashboard({ onLogout }) {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #e2e8f0', paddingLeft: '16px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>SA</div>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem' }}>{avatarInitials}</div>
               <div>
-                <strong style={{ fontSize: '0.85rem', display: 'block', color: '#0f172a' }}>Dr. Samuel Adebayo</strong>
-                <small style={{ fontSize: '0.72rem', color: '#64748b' }}>Principal</small>
+                <strong style={{ fontSize: '0.85rem', display: 'block', color: '#0f172a' }}>{adminName}</strong>
+                <small style={{ fontSize: '0.72rem', color: '#64748b' }}>{adminTitle}</small>
               </div>
             </div>
           </div>
