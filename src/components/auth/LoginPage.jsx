@@ -42,6 +42,35 @@ function LoginPage() {
   const [parentName, setParentName] = useState('');
   const [parentPhone, setParentPhone] = useState('');
 
+  // Dynamic Setup Data States
+  const [availableClasses, setAvailableClasses] = useState([]);
+  const [activeSessionInfo, setActiveSessionInfo] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadDynamicPortalData() {
+      try {
+        const [clsRes, sessRes] = await Promise.all([
+          db.getClasses(),
+          db.getAcademicSessions()
+        ]);
+        if (!isMounted) return;
+        if (clsRes?.data && clsRes.data.length > 0) {
+          setAvailableClasses(clsRes.data);
+          setStudentClass(clsRes.data[0].class_name);
+        }
+        if (sessRes?.data) {
+          const current = sessRes.data.find(s => s.is_current) || sessRes.data[0];
+          setActiveSessionInfo(current);
+        }
+      } catch (err) {
+        console.error('Failed to load dynamic portal setup:', err);
+      }
+    }
+    loadDynamicPortalData();
+    return () => { isMounted = false; };
+  }, []);
+
   const handleRequestReset = async (e) => {
     e.preventDefault();
     if (!forgotForm.portal_id) return;
@@ -138,7 +167,9 @@ function LoginPage() {
           </div>
         )}
         <div className="cg-form-container">
-          <div className="cg-pill-tag">NOBLE KINGS ACADEMY</div>
+          <div className="cg-pill-tag">
+            NOBLE KINGS ACADEMY • {activeSessionInfo?.session_name || '2024/2025'} SESSION ({activeSessionInfo?.term || activeSessionInfo?.active_term || 'THIRD TERM'})
+          </div>
 
           <h1 className="cg-form-title">
             {isSignUp
@@ -372,19 +403,29 @@ function LoginPage() {
                     onChange={(e) => setStudentClass(e.target.value)}
                     className="cg-select"
                   >
-                    <option value="Creche">Creche</option>
-                    <option value="Nursery 1">Nursery 1</option>
-                    <option value="Nursery 2">Nursery 2</option>
-                    <option value="Kindergarten">Kindergarten</option>
-                    <option value="Primary 1">Primary 1</option>
-                    <option value="Primary 2">Primary 2</option>
-                    <option value="Primary 3">Primary 3</option>
-                    <option value="Primary 4">Primary 4</option>
-                    <option value="Primary 5">Primary 5</option>
-                    <option value="JSS 1">JSS 1</option>
-                    <option value="JSS 2">JSS 2</option>
-                    <option value="JSS 3">JSS 3</option>
-                    <option value="SSS 1">SSS 1 (SS 1)</option>
+                    {availableClasses.length > 0 ? (
+                      availableClasses.map((cls) => (
+                        <option key={cls.id || cls.class_name} value={cls.class_name}>
+                          {cls.class_name}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="Creche">Creche</option>
+                        <option value="Nursery 1">Nursery 1</option>
+                        <option value="Nursery 2">Nursery 2</option>
+                        <option value="Kindergarten">Kindergarten</option>
+                        <option value="Primary 1">Primary 1</option>
+                        <option value="Primary 2">Primary 2</option>
+                        <option value="Primary 3">Primary 3</option>
+                        <option value="Primary 4">Primary 4</option>
+                        <option value="Primary 5">Primary 5</option>
+                        <option value="JSS 1">JSS 1</option>
+                        <option value="JSS 2">JSS 2</option>
+                        <option value="JSS 3">JSS 3</option>
+                        <option value="SSS 1">SSS 1 (SS 1)</option>
+                      </>
+                    )}
                   </select>
                 </div>
               )}
