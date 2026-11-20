@@ -10,9 +10,29 @@ import StudentDashboard from './components/student/StudentDashboard';
 import PublicWebsite from './components/public/PublicWebsite';
 
 function App() {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState(null);
+  const [session, setSession] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sms_mock_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [userRole, setUserRole] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sms_mock_session');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed?.user?.role || parsed?.profile?.role || 'admin';
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
