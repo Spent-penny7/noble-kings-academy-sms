@@ -80,7 +80,6 @@ function App() {
         } else {
           if (isMounted) setUserRole(null);
         }
-        if (isMounted) setLoading(false);
       });
       subscription = data?.subscription;
     }
