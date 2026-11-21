@@ -808,6 +808,15 @@ function AdminDashboard({ onLogout }) {
   const currentAdminEmail = currentAdminProfile?.email || 'admin@school.com';
   const isCurrentLoggedInSuperAdmin = currentAdminId === '000000' || currentAdminEmail === 'admin@school.com' || currentAdminProfile?.is_super_admin === true;
 
+  const adminName = currentAdminProfile?.full_name || schoolSettings?.principal_name || 'Dr. Samuel Adebayo';
+  const adminTitle = currentAdminProfile?.admin_title || 'School Principal & System Admin';
+  const avatarInitials = adminName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0].toUpperCase())
+    .join('') || 'SA';
+
   // Attention Counts for Header Notifications
   const pendingStudentsCount = students.filter(s => s.status !== 'approved').length;
   const pendingTeachersCount = teachers.filter(t => t.status !== 'approved').length;
