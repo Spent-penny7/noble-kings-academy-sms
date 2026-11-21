@@ -790,13 +790,43 @@ export const db = {
           .eq('id', classId)
           .select()
           .single();
-        if (!error) return { data, error: null };
+        if (!error && data) return { data, error: null };
       } catch (err) {
         console.warn('Supabase updateClass error:', err);
       }
     }
     const currentMock = loadMockData();
+    const oldClass = currentMock.classes.find((c) => c.id === classId);
+    const oldName = oldClass?.class_name;
+    const newName = updates.class_name;
+
     currentMock.classes = currentMock.classes.map((c) => (c.id === classId ? { ...c, ...updates } : c));
+
+    // Propagate class rename to students, profiles, teachers, and curriculum
+    if (oldName && newName && oldName !== newName) {
+      if (currentMock.students) {
+        currentMock.students = currentMock.students.map((s) =>
+          s.class_name === oldName ? { ...s, class_name: newName } : s
+        );
+      }
+      if (currentMock.profiles) {
+        currentMock.profiles = currentMock.profiles.map((p) =>
+          p.class_name === oldName ? { ...p, class_name: newName } : p
+        );
+      }
+      if (currentMock.teachers) {
+        currentMock.teachers = currentMock.teachers.map((t) => ({
+          ...t,
+          assigned_grades: (t.assigned_grades || []).map((g) => (g === oldName ? newName : g))
+        }));
+      }
+      if (currentMock.curriculum) {
+        currentMock.curriculum = currentMock.curriculum.map((c) =>
+          c.grade_level?.toLowerCase() === oldName.toLowerCase() ? { ...c, grade_level: newName } : c
+        );
+      }
+    }
+
     saveMockData(currentMock);
     return { data: currentMock.classes.find((c) => c.id === classId), error: null };
   },
@@ -861,7 +891,20 @@ export const db = {
       }
     }
     const currentMock = loadMockData();
+    const oldSub = currentMock.subjects.find((s) => s.id === subjectId);
+    const oldSubName = oldSub?.subject_name;
+    const newSubName = updates.subject_name;
+
     currentMock.subjects = currentMock.subjects.map((s) => (s.id === subjectId ? { ...s, ...updates } : s));
+
+    if (oldSubName && newSubName && oldSubName !== newSubName) {
+      if (currentMock.curriculum) {
+        currentMock.curriculum = currentMock.curriculum.map((c) =>
+          c.subject_name === oldSubName ? { ...c, subject_name: newSubName } : c
+        );
+      }
+    }
+
     saveMockData(currentMock);
     return { data: currentMock.subjects.find((s) => s.id === subjectId), error: null };
   },
@@ -971,6 +1014,55 @@ export const db = {
     return { data: null, error: { message: 'Teacher record not found' } };
   },
 
+  updateTeacher: async (teacherId, updates) => {
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('teachers')
+          .update(updates)
+          .or(`id.eq.${teacherId},employee_id.eq.${teacherId}`);
+        await supabase
+          .from('profiles')
+          .update(updates)
+          .or(`id.eq.${teacherId},student_id.eq.${teacherId}`);
+      } catch (err) {
+        console.warn('Supabase updateTeacher error:', err);
+      }
+    }
+    const currentMock = loadMockData();
+    currentMock.teachers = (currentMock.teachers || []).map((t) =>
+      t.id === teacherId || t.employee_id === teacherId ? { ...t, ...updates } : t
+    );
+    currentMock.profiles = (currentMock.profiles || []).map((p) =>
+      p.id === teacherId || p.student_id === teacherId || p.user_id === teacherId ? { ...p, ...updates } : p
+    );
+
+    const mockSessionStr = localStorage.getItem('sms_mock_session');
+    if (mockSessionStr) {
+      try {
+        const session = JSON.parse(mockSessionStr);
+        if (
+          session?.user?.student_id === teacherId ||
+          session?.profile?.employee_id === teacherId ||
+          session?.user?.id === teacherId ||
+          session?.profile?.id === teacherId
+        ) {
+          session.profile = { ...(session.profile || {}), ...updates };
+          if (updates.full_name) {
+            session.user.full_name = updates.full_name;
+          }
+          localStorage.setItem('sms_mock_session', JSON.stringify(session));
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    saveMockData(currentMock);
+    const updated = currentMock.teachers.find(t => t.id === teacherId || t.employee_id === teacherId);
+    return { data: updated, error: null };
+  },
+
   // Students
   getStudents: async () => {
     if (isSupabaseConfigured()) {
@@ -1037,6 +1129,55 @@ export const db = {
     currentMock.students.push(newStudent);
     saveMockData(currentMock);
     return { data: newStudent, error: null };
+  },
+
+  updateStudent: async (studentId, updates) => {
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('students')
+          .update(updates)
+          .or(`id.eq.${studentId},student_id.eq.${studentId}`);
+        await supabase
+          .from('profiles')
+          .update(updates)
+          .or(`id.eq.${studentId},student_id.eq.${studentId}`);
+      } catch (err) {
+        console.warn('Supabase updateStudent error:', err);
+      }
+    }
+    const currentMock = loadMockData();
+    currentMock.students = (currentMock.students || []).map((s) =>
+      s.id === studentId || s.student_id === studentId ? { ...s, ...updates } : s
+    );
+    currentMock.profiles = (currentMock.profiles || []).map((p) =>
+      p.id === studentId || p.student_id === studentId || p.user_id === studentId ? { ...p, ...updates } : p
+    );
+
+    const mockSessionStr = localStorage.getItem('sms_mock_session');
+    if (mockSessionStr) {
+      try {
+        const session = JSON.parse(mockSessionStr);
+        if (
+          session?.user?.student_id === studentId ||
+          session?.profile?.student_id === studentId ||
+          session?.user?.id === studentId ||
+          session?.profile?.id === studentId
+        ) {
+          session.profile = { ...(session.profile || {}), ...updates };
+          if (updates.full_name) {
+            session.user.full_name = updates.full_name;
+          }
+          localStorage.setItem('sms_mock_session', JSON.stringify(session));
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    saveMockData(currentMock);
+    const updated = currentMock.students.find(s => s.id === studentId || s.student_id === studentId);
+    return { data: updated, error: null };
   },
 
   deleteTeacher: async (teacherId) => {

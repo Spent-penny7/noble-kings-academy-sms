@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../supabase/client';
+import bgWallpaper from '../../assets/bg-wallpaper.png';
 
 function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -43,24 +44,29 @@ function LoginPage() {
 
   // Dynamic Setup Data States
   const [availableClasses, setAvailableClasses] = useState([]);
-  const [_activeSessionInfo, setActiveSessionInfo] = useState(null);
+  const [activeSessionInfo, setActiveSessionInfo] = useState(null);
+  const [schoolSettings, setSchoolSettings] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
     async function loadDynamicPortalData() {
       try {
-        const [clsRes, sessRes] = await Promise.all([
+        const [clsRes, sessRes, settingsRes] = await Promise.all([
           db.getClasses(),
-          db.getAcademicSessions()
+          db.getAcademicSessions(),
+          db.getSchoolSettings()
         ]);
         if (!isMounted) return;
         if (clsRes?.data && clsRes.data.length > 0) {
           setAvailableClasses(clsRes.data);
-          setStudentClass(clsRes.data[0].class_name);
+          setStudentClass(prev => clsRes.data.some(c => c.class_name === prev) ? prev : clsRes.data[0].class_name);
         }
         if (sessRes?.data) {
           const current = sessRes.data.find(s => s.is_current) || sessRes.data[0];
           setActiveSessionInfo(current);
+        }
+        if (settingsRes?.data) {
+          setSchoolSettings(settingsRes.data);
         }
       } catch (err) {
         console.error('Failed to load dynamic portal setup:', err);
@@ -169,7 +175,7 @@ function LoginPage() {
   };
 
   return (
-    <div className="cg-centered-auth-wrapper">
+    <div className="cg-centered-auth-wrapper" style={{ backgroundImage: `url(${bgWallpaper})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed' }}>
       <div className="cg-centered-card">
         {isTransitioning && (
           <div className="tab-transition-overlay">
@@ -177,7 +183,13 @@ function LoginPage() {
           </div>
         )}
         <div className="cg-form-container">
-          <div className="cg-pill-tag">NOBLE KINGS ACADEMY</div>
+          <div className="cg-pill-tag">{(schoolSettings?.school_name || 'NOBLE KINGS ACADEMY').toUpperCase()}</div>
+
+          {activeSessionInfo && (
+            <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '8px', fontWeight: 600 }}>
+              📅 {activeSessionInfo.session_name} Session ({activeSessionInfo.term || activeSessionInfo.active_term || 'Active Term'})
+            </div>
+          )}
 
           <h1 className="cg-form-title">
             {isSignUp

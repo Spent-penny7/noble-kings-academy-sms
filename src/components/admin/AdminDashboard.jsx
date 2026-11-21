@@ -66,6 +66,9 @@ function AdminDashboard({ onLogout }) {
   const [editingResultModal, setEditingResultModal] = useState(null);
   const [editingResultSubjects, setEditingResultSubjects] = useState([]);
   const [editingAdminModal, setEditingAdminModal] = useState(null);
+  const [editingClassModal, setEditingClassModal] = useState(null);
+  const [editingSubjectModal, setEditingSubjectModal] = useState(null);
+  const [editingStudentModal, setEditingStudentModal] = useState(null);
 
   // Modal / Form States
   const [showClassModal, setShowClassModal] = useState(false);
@@ -200,7 +203,7 @@ function AdminDashboard({ onLogout }) {
     }
   };
 
-  const _handleSaveSchoolSettings = async (e) => {
+  const handleSaveSchoolSettings = async (e) => {
     e.preventDefault();
     if (!schoolSettings) return;
     const { data, error } = await db.updateSchoolSettings(schoolSettings);
@@ -208,7 +211,56 @@ function AdminDashboard({ onLogout }) {
       showNotice(error.message, 'error');
     } else {
       setSchoolSettings(data);
-      showNotice('School settings updated successfully!');
+      showNotice('✓ School settings updated successfully across the portal!');
+      window.dispatchEvent(new Event('sms_data_change'));
+      window.dispatchEvent(new Event('sms_auth_change'));
+    }
+  };
+
+  const handleSaveEditedClass = async (e) => {
+    e.preventDefault();
+    if (!editingClassModal) return;
+    const { error } = await db.updateClass(editingClassModal.id, editingClassModal);
+    if (error) {
+      showNotice(error.message, 'error');
+    } else {
+      const refreshed = await db.getClasses();
+      if (refreshed.data) setClasses(refreshed.data);
+      const stuRefreshed = await db.getStudents();
+      if (stuRefreshed.data) setStudents(stuRefreshed.data);
+      showNotice(`✓ Class ${editingClassModal.class_name} updated successfully!`);
+      setEditingClassModal(null);
+      window.dispatchEvent(new Event('sms_data_change'));
+    }
+  };
+
+  const handleSaveEditedSubject = async (e) => {
+    e.preventDefault();
+    if (!editingSubjectModal) return;
+    const { error } = await db.updateSubject(editingSubjectModal.id, editingSubjectModal);
+    if (error) {
+      showNotice(error.message, 'error');
+    } else {
+      const refreshed = await db.getSubjects();
+      if (refreshed.data) setSubjects(refreshed.data);
+      showNotice(`✓ Subject ${editingSubjectModal.subject_name} updated successfully!`);
+      setEditingSubjectModal(null);
+      window.dispatchEvent(new Event('sms_data_change'));
+    }
+  };
+
+  const handleSaveEditedStudent = async (e) => {
+    e.preventDefault();
+    if (!editingStudentModal) return;
+    const { error } = await db.updateStudent(editingStudentModal.id, editingStudentModal);
+    if (error) {
+      showNotice(error.message, 'error');
+    } else {
+      const refreshed = await db.getStudents();
+      if (refreshed.data) setStudents(refreshed.data);
+      showNotice(`✓ Student record updated for ${editingStudentModal.full_name || editingStudentModal.profiles?.full_name}!`);
+      setEditingStudentModal(null);
+      window.dispatchEvent(new Event('sms_data_change'));
     }
   };
 
@@ -224,6 +276,7 @@ function AdminDashboard({ onLogout }) {
       setNewSession({ session_name: '', start_date: '', end_date: '', term: 'Third Term', is_current: false });
       setShowSessionModal(false);
       showNotice(`Academic setup ${data.session_name} created successfully!`);
+      window.dispatchEvent(new Event('sms_data_change'));
     }
   };
 
@@ -238,6 +291,7 @@ function AdminDashboard({ onLogout }) {
       setNewAnnouncement({ title: '', content: '', target_audience: 'all' });
       setShowAnnModal(false);
       showNotice('📢 Announcement published live throughout the portal!');
+      window.dispatchEvent(new Event('sms_data_change'));
     }
   };
 
@@ -248,6 +302,7 @@ function AdminDashboard({ onLogout }) {
     } else {
       setAnnouncements(announcements.filter((a) => a.id !== id));
       showNotice('Announcement deleted.');
+      window.dispatchEvent(new Event('sms_data_change'));
     }
   };
 
@@ -255,16 +310,20 @@ function AdminDashboard({ onLogout }) {
     await db.setActiveSession(sessionId);
     const refreshed = await db.getAcademicSessions();
     if (refreshed.data) setSessions(refreshed.data);
-    showNotice('Active academic session updated!');
+    const settingsRes = await db.getSchoolSettings();
+    if (settingsRes.data) setSchoolSettings(settingsRes.data);
+    showNotice('Active academic session updated throughout the portal!');
+    window.dispatchEvent(new Event('sms_data_change'));
   };
 
   const handleSetActiveTerm = async (termName) => {
-    const activeSession = sessions.find(s => s.is_current) || sessions[0];
+    const activeSession = sessions.find((s) => s.is_current) || sessions[0];
     if (activeSession) {
       await db.setActiveTerm(activeSession.id, termName);
       const refreshed = await db.getAcademicSessions();
       if (refreshed.data) setSessions(refreshed.data);
-      showNotice(`Active term updated to ${termName}!`);
+      showNotice(`Active term updated to ${termName} throughout the portal!`);
+      window.dispatchEvent(new Event('sms_data_change'));
     }
   };
 
@@ -981,6 +1040,13 @@ function AdminDashboard({ onLogout }) {
           >
             👤 Profile
           </button>
+          <button
+            className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+            onClick={() => switchTab('settings')}
+            style={{ borderRadius: '6px', margin: '2px 0', color: activeTab === 'settings' ? '#ffffff' : '#cbd5e1', background: activeTab === 'settings' ? '#16a34a' : 'transparent', fontWeight: 600 }}
+          >
+            ⚙️ School Settings
+          </button>
         </nav>
 
       </aside>
@@ -1291,7 +1357,15 @@ function AdminDashboard({ onLogout }) {
                             <td>
                               <strong>{enrolledCount}</strong> <span style={{ color: '#64748b', fontSize: '0.8rem' }}>({Math.round((enrolledCount / (cls.capacity || 1)) * 100)}% capacity)</span>
                             </td>
-                            <td style={{ textAlign: 'right' }}>
+                            <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                              <button
+                                type="button"
+                                onClick={() => setEditingClassModal(cls)}
+                                className="btn-secondary"
+                                style={{ padding: '3px 8px', fontSize: '0.75rem', background: '#0b2a5c', color: '#fff' }}
+                              >
+                                ✏️ Edit
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteClass(cls.id, cls.class_name)}
@@ -1358,7 +1432,15 @@ function AdminDashboard({ onLogout }) {
                             </span>
                           </td>
                           <td style={{ color: '#64748b', fontSize: '0.85rem' }}>{sub.description || 'General curriculum subject'}</td>
-                          <td style={{ textAlign: 'right' }}>
+                          <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                            <button
+                              type="button"
+                              onClick={() => setEditingSubjectModal(sub)}
+                              className="btn-secondary"
+                              style={{ padding: '3px 8px', fontSize: '0.75rem', background: '#0b2a5c', color: '#fff' }}
+                            >
+                              ✏️ Edit
+                            </button>
                             <button
                               type="button"
                               onClick={() => handleDeleteSubject(sub.id, sub.subject_name)}
@@ -1874,6 +1956,22 @@ function AdminDashboard({ onLogout }) {
                         )}
                       </td>
                       <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        <button
+                          onClick={() => setEditingStudentModal({
+                            id: stu.id,
+                            student_id: stu.student_id,
+                            full_name: stu.full_name || stu.profiles?.full_name || '',
+                            class_name: stu.class_name || (classes[0]?.class_name || 'Primary 1'),
+                            email: stu.email || stu.profiles?.email || '',
+                            phone: stu.phone || stu.profiles?.phone || '',
+                            parent_guardian_name: stu.parent_guardian_name || stu.profiles?.parent_guardian_name || '',
+                            parent_guardian_phone: stu.parent_guardian_phone || stu.profiles?.parent_guardian_phone || ''
+                          })}
+                          className="btn-secondary"
+                          style={{ background: '#0b2a5c', color: '#ffffff', padding: '4px 10px', fontSize: '0.78rem', fontWeight: 600 }}
+                        >
+                          ✏️ Edit / Class
+                        </button>
                         <button
                           onClick={() => {
                             setResetUserPasswordModal(stu);
