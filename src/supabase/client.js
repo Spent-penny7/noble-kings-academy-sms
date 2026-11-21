@@ -1498,6 +1498,7 @@ export const db = {
   },
 
   updateAdminProfile: async (adminData) => {
+    let updatedProfile = adminData;
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase
@@ -1506,19 +1507,74 @@ export const db = {
           .eq('id', adminData.id)
           .select()
           .single();
-        if (!error && data) return { data, error: null };
+        if (!error && data) {
+          updatedProfile = data;
+          if (adminData.student_id === '000000' || adminData.admin_title?.toLowerCase().includes('principal')) {
+            await supabase.from('school_settings').update({ principal_name: adminData.full_name }).neq('id', '0');
+          }
+        }
       } catch (err) {
         console.warn('Supabase updateAdminProfile error:', err);
       }
     }
+
     const currentMock = loadMockData();
-    const index = (currentMock.profiles || []).findIndex(p => p.id === adminData.id || p.student_id === adminData.student_id);
+    const index = (currentMock.profiles || []).findIndex(
+      (p) => p.id === adminData.id || p.student_id === adminData.student_id || p.user_id === adminData.user_id
+    );
     if (index !== -1) {
       currentMock.profiles[index] = { ...currentMock.profiles[index], ...adminData };
-      saveMockData(currentMock);
-      return { data: currentMock.profiles[index], error: null };
+      updatedProfile = currentMock.profiles[index];
+    } else {
+      currentMock.profiles.push(adminData);
+      updatedProfile = adminData;
     }
-    return { data: null, error: { message: 'Admin profile not found' } };
+
+    // Keep school settings principal name in sync if principal / super admin
+    if (
+      adminData.student_id === '000000' ||
+      updatedProfile.is_super_admin ||
+      adminData.admin_title?.toLowerCase().includes('principal') ||
+      index === 0
+    ) {
+      if (currentMock.school_settings) {
+        currentMock.school_settings.principal_name = adminData.full_name;
+      }
+    }
+
+    // Update active session in localStorage so changes immediately reflect everywhere
+    const mockSessionStr = localStorage.getItem('sms_mock_session');
+    if (mockSessionStr) {
+      try {
+        const session = JSON.parse(mockSessionStr);
+        if (
+          session?.user?.id === adminData.user_id ||
+          session?.user?.id === adminData.id ||
+          session?.profile?.id === adminData.id ||
+          session?.profile?.student_id === adminData.student_id ||
+          session?.user?.student_id === adminData.student_id ||
+          session?.user?.role === 'admin'
+        ) {
+          session.profile = { ...(session.profile || {}), ...updatedProfile };
+          session.user = {
+            ...(session.user || {}),
+            email: updatedProfile.email,
+            full_name: updatedProfile.full_name,
+            student_id: updatedProfile.student_id
+          };
+          localStorage.setItem('sms_mock_session', JSON.stringify(session));
+        }
+      } catch (e) {
+        console.warn('Failed to update mock session:', e);
+      }
+    }
+
+    saveMockData(currentMock);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('sms_data_change'));
+      window.dispatchEvent(new Event('sms_auth_change'));
+    }
+    return { data: updatedProfile, error: null };
   },
 
   getAdmins: async () => {

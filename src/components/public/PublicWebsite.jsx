@@ -5,20 +5,41 @@ import heroImage from '../../assets/hero.png';
 
 function PublicWebsite() {
   const [announcements, setAnnouncements] = useState([]);
+  const [schoolSettings, setSchoolSettings] = useState(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
-    async function loadNotices() {
+    let isMounted = true;
+    async function loadPublicData() {
       try {
-        const res = await db.getAnnouncements('all');
-        if (res?.data && res.data.length > 0) {
-          setAnnouncements(res.data.slice(0, 3));
+        const [annRes, settingsRes] = await Promise.all([
+          db.getAnnouncements('all'),
+          db.getSchoolSettings()
+        ]);
+        if (!isMounted) return;
+        if (annRes?.data && annRes.data.length > 0) {
+          setAnnouncements(annRes.data.slice(0, 3));
+        }
+        if (settingsRes?.data) {
+          setSchoolSettings(settingsRes.data);
         }
       } catch (err) {
-        console.error('Failed to load announcements for public page:', err);
+        console.error('Failed to load data for public page:', err);
       }
     }
-    loadNotices();
+    loadPublicData();
+
+    const handleSync = () => {
+      loadPublicData();
+    };
+    window.addEventListener('sms_data_change', handleSync);
+    window.addEventListener('storage', handleSync);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('sms_data_change', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
   }, []);
 
   return (
@@ -28,8 +49,8 @@ function PublicWebsite() {
         <div className="public-container topbar-flex">
           <span>✨ 2024/2025 Academic Session is Active • Admissions Open</span>
           <div className="topbar-contacts">
-            <span>📞 +1-555-0199</span>
-            <span>✉️ info@noblekingsacademy.edu</span>
+            <span>📞 {schoolSettings?.school_phone || '+1-555-0199'}</span>
+            <span>✉️ {schoolSettings?.school_email || 'info@noblekingsacademy.edu'}</span>
           </div>
         </div>
       </div>
@@ -276,7 +297,7 @@ function PublicWebsite() {
               </div>
               <div className="fact-row">
                 <span>Principal</span>
-                <strong>Dr. Samuel Adebayo</strong>
+                <strong>{schoolSettings?.principal_name || 'Dr. Samuel Adebayo'}</strong>
               </div>
             </div>
             <div className="admissions-cta-box">

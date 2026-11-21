@@ -133,8 +133,19 @@ function AdminDashboard({ onLogout }) {
       }
     }
     loadData();
+
+    const handleSync = () => {
+      loadData();
+    };
+    window.addEventListener('sms_data_change', handleSync);
+    window.addEventListener('sms_auth_change', handleSync);
+    window.addEventListener('storage', handleSync);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('sms_data_change', handleSync);
+      window.removeEventListener('sms_auth_change', handleSync);
+      window.removeEventListener('storage', handleSync);
     };
   }, []);
 
@@ -460,16 +471,37 @@ function AdminDashboard({ onLogout }) {
   const handleSaveEditedAdminProfile = async (e) => {
     e.preventDefault();
     if (!editingAdminModal) return;
-    const { error } = await db.updateAdminProfile(editingAdminModal);
+    const { data: updatedAdmin, error } = await db.updateAdminProfile(editingAdminModal);
     if (error) {
       showNotice(error.message, 'error');
     } else {
+      const targetData = updatedAdmin || editingAdminModal;
+      const isEditingSelf =
+        !currentAdminProfile ||
+        currentAdminProfile.id === targetData.id ||
+        currentAdminProfile.student_id === targetData.student_id ||
+        currentAdminProfile.user_id === targetData.user_id ||
+        targetData.student_id === '000000' ||
+        targetData.student_id === currentAdminId;
+
+      if (isEditingSelf) {
+        setCurrentAdminProfile(prev => ({
+          ...(prev || {}),
+          ...targetData
+        }));
+      }
+
       const refreshed = await db.getAdmins();
       if (refreshed.data) setAdminsList(refreshed.data);
-      const sessionRes = await db.getSession();
-      if (sessionRes?.session?.profile) setCurrentAdminProfile(sessionRes.session.profile);
-      showNotice(`✓ Administrator profile updated for ${editingAdminModal.full_name}!`);
+
+      const settingsRes = await db.getSchoolSettings();
+      if (settingsRes?.data) setSchoolSettings(settingsRes.data);
+
+      showNotice(`✓ Administrator profile updated for ${targetData.full_name}!`);
       setEditingAdminModal(null);
+
+      window.dispatchEvent(new Event('sms_data_change'));
+      window.dispatchEvent(new Event('sms_auth_change'));
     }
   };
 
@@ -1951,25 +1983,28 @@ function AdminDashboard({ onLogout }) {
             <div className="card mb-20" style={{ background: '#f8fafc', border: '1px solid #cbd5e1', marginTop: '20px', padding: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap', borderBottom: '1px solid #e2e8f0', paddingBottom: '20px', marginBottom: '20px' }}>
                 <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: '#16a34a', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem', fontWeight: 'bold' }}>
-                  {(currentAdminProfile?.full_name || 'Dr. Samuel Adebayo').split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                  {avatarInitials}
                 </div>
                 <div>
-                  <span className="badge badge-primary mb-1" style={{ display: 'inline-block', marginBottom: '4px' }}>{currentAdminProfile?.admin_title || 'School Principal & Super Admin'}</span>
+                  <span className="badge badge-primary mb-1" style={{ display: 'inline-block', marginBottom: '4px' }}>{adminTitle}</span>
                   <h3 style={{ fontSize: '1.4rem', color: '#0f172a', fontWeight: 800, margin: '2px 0' }}>
-                    {currentAdminProfile?.full_name || 'Dr. Samuel Adebayo'}
+                    {adminName}
                   </h3>
                   <p style={{ fontSize: '0.88rem', color: '#475569', margin: '0 0 10px' }}>
                     Admin ID: <code>{currentAdminProfile?.student_id || '000000'}</code> | Email: <strong>{currentAdminProfile?.email || 'admin@school.com'}</strong>
+                    {currentAdminProfile?.phone && (
+                      <span style={{ marginLeft: '8px' }}>| Phone: <strong>{currentAdminProfile.phone}</strong></span>
+                    )}
                   </p>
                   <button
                     type="button"
                     onClick={() => setEditingAdminModal(currentAdminProfile || {
                       id: 'prof-admin-1',
                       student_id: '000000',
-                      full_name: 'Dr. Samuel Adebayo',
-                      email: 'admin@school.com',
-                      phone: '+1-555-0100',
-                      admin_title: 'School Principal & Super Admin'
+                      full_name: adminName,
+                      email: currentAdminProfile?.email || 'admin@school.com',
+                      phone: currentAdminProfile?.phone || '+1-555-0100',
+                      admin_title: adminTitle
                     })}
                     className="btn-secondary"
                     style={{ background: '#0b2a5c', color: '#ffffff', padding: '4px 12px', fontSize: '0.78rem', fontWeight: 600 }}
